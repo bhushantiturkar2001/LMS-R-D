@@ -1,0 +1,41 @@
+package com.knowlia.lms_live_service.service;
+
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import io.livekit.server.AccessToken;
+import io.livekit.server.CanPublish;
+import io.livekit.server.CanPublishData;
+import io.livekit.server.CanSubscribe;
+import io.livekit.server.RoomAdmin;
+import io.livekit.server.RoomJoin;
+import io.livekit.server.RoomName;
+import io.livekit.server.VideoGrant;
+
+@Service
+public class LiveKitTokenService {
+
+	// Injected from application.yml
+	@Value("${livekit.api.key}")
+	private String apiKey;
+
+	@Value("${livekit.api.secret}")
+	private String apiSecret;
+
+	public String generateInstructorToken(String roomName, String instructorId, String instructorName) {
+
+		AccessToken token = new AccessToken(apiKey, apiSecret);
+		token.setName(instructorName);
+		token.setIdentity(instructorId);
+
+		token.addGrants(new RoomJoin(true), new RoomName(instructorName), new CanPublish(true), new CanSubscribe(true),
+				new CanPublishData(true), new RoomAdmin(true));
+
+		token.setTtl(TimeUnit.MILLISECONDS.convert(4, TimeUnit.HOURS));
+		return token.toJwt();
+
+	}
+
+}

@@ -1,0 +1,5 @@
+package com.knowlia.lms_live_service.service;
+
+public class LiveKitTokenService {
+
+}

@@ -1,0 +1,118 @@
+package com.knowlia.lms_live_service.service;
+
+import com.knowlia.lms_live_service.dto.JoinResponse;
+import com.knowlia.lms_live_service.dto.StartSessionRequest;
+import com.knowlia.lms_live_service.model.LiveSession;
+import com.knowlia.lms_live_service.model.LiveSession.SessionStatus;
+import com.knowlia.lms_live_service.repository.LiveSessionRepository;
+import io.livekit.server.RoomServiceClient;
+import livekit.LivekitModels;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Service
+public class LiveSessionService {
+
+    @Autowired
+    private LiveSessionRepository sessionRepository;
+
+    @Autowired
+    private LiveKitTokenService tokenService;
+
+    @Autowired
+    private RoomServiceClient roomServiceClient; // injected from LiveKitConfig bean
+
+    @Value("${livekit.server.url}")
+    private String liveKitServerUrl;
+
+    /**
+     * Called when instructor starts a class.
+     * Creates a room in LiveKit + saves session record in DB.
+     * Returns instructor token so they can connect immediately.
+     */
+    public JoinResponse startSession(StartSessionRequest req) throws Exception {
+
+        // Generate a unique room name — courseId + timestamp keeps it unique
+        String roomName = req.getCourseId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+
+        // Create room in LiveKit server (empty room, instructor will join with token)
+        roomServiceClient.createRoom(
+            LivekitModels.CreateRoomRequest.newBuilder()
+                .setName(roomName)
+                .setEmptyTimeout(300)      // auto-delete room if empty for 5 min
+                .setMaxParticipants(500)
+                .build()
+        ).execute();
+
+        // Save session in DB — status ACTIVE
+        LiveSession session = new LiveSession();
+        session.setRoomName(roomName);
+        session.setCourseId(req.getCourseId());
+        session.setInstructorId(req.getInstructorId());
+        session.setStatus(SessionStatus.ACTIVE);
+        session.setStartTime(LocalDateTime.now());
+        sessionRepository.save(session);
+
+        // Generate instructor token — canPublish: true, roomAdmin: true
+        String token = tokenService.generateInstructorToken(
+            roomName,
+            req.getInstructorId(),
+            req.getInstructorName()
+        );
+
+        return new JoinResponse(token, liveKitServerUrl);
+    }
+
+    /**
+     * Called when student joins a class.
+     * Checks if room is active, then returns student token.
+     * Enrollment check is done in controller before calling this.
+     */
+    public JoinResponse joinSession(String roomName, String studentId, String studentName) {
+
+        // Verify room is currently ACTIVE in our DB
+        // If instructor hasn't started yet → 404
+        sessionRepository.findByRoomNameAndStatus(roomName, SessionStatus.ACTIVE)
+            .orElseThrow(() -> new RuntimeException("Session not active"));
+
+        // Generate student token — canPublish: false (view only)
+        String token = tokenService.generateStudentToken(roomName, studentId, studentName);
+
+        return new JoinResponse(token, liveKitServerUrl);
+    }
+
+    /**
+     * Called when instructor ends the class.
+     * Deletes room from LiveKit + marks session ENDED in DB.
+     * LiveKit will fire webhooks after room deletion automatically.
+     */
+    public void endSession(String roomName) throws Exception {
+
+        // Delete room from LiveKit — this triggers "room_finished" webhook
+        roomServiceClient.deleteRoom(
+            LivekitModels.DeleteRoomRequest.newBuilder()
+                .setRoom(roomName)
+                .build()
+        ).execute();
+
+        // Mark session as ENDED in DB
+        LiveSession session = sessionRepository.findByRoomName(roomName)
+            .orElseThrow(() -> new RuntimeException("Session not found"));
+
+        session.setStatus(SessionStatus.ENDED);
+        session.setEndTime(LocalDateTime.now());
+        sessionRepository.save(session);
+    }
+
+    /**
+     * Quick check used before generating student token.
+     * Returns true only if room exists and is ACTIVE.
+     */
+    public boolean isRoomActive(String roomName) {
+        return sessionRepository.existsByRoomNameAndStatus(roomName, SessionStatus.ACTIVE);
+    }
+}
