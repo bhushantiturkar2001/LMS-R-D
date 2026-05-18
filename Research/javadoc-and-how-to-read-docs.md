@@ -1,4 +1,4 @@
-# Javadoc, Code Comments & How to Read Documentation
+# Javadoc, Comments & How to Read Documentation
 **Bhushan | May 2026**
 
 ---
@@ -6,20 +6,17 @@
 ## The Golden Rule
 
 > Comment the **WHY**, not the **WHAT**.
-> Code already shows what. Comments explain intent, business rules, and non-obvious decisions.
+> Code shows what. Comments explain intent, business rules, and non-obvious decisions.
 
 ---
 
 ## 3 Types of Comments in Java
 
-### 1. Javadoc — `/** */`
-For classes, methods, and fields. Generates HTML documentation.
-
-### 2. Block Comment — `/* */`
-For multi-line explanations inside a method. Rarely used.
-
-### 3. Inline Comment — `//`
-For single non-obvious lines inside a method body.
+| Type | Syntax | When to use |
+|------|--------|-------------|
+| **Javadoc** | `/** */` | Classes, public methods, fields — generates HTML docs |
+| **Block** | `/* */` | Multi-line explanation inside method — rarely needed |
+| **Inline** | `//` | Single non-obvious line inside method body |
 
 ---
 
@@ -31,7 +28,7 @@ For single non-obvious lines inside a method body.
  *
  * <p>Tokens are created server-side to prevent clients from forging
  * their own permissions. A student token has canPublish=false by default.
- * To allow a student to unmute (e.g. Q&A), update permissions via
+ * To allow a student to unmute for Q&A, update permissions via
  * {@link RoomServiceClient#updateParticipant} — do NOT issue a new token.</p>
  *
  * @author Bhushan
@@ -42,11 +39,11 @@ For single non-obvious lines inside a method body.
 public class LiveKitTokenService {
 ```
 
-**What to include at class level:**
-- What this class is responsible for (one sentence)
-- Important business rules or constraints
-- What NOT to do (saves future devs from mistakes)
-- `@author` and `@since` in team projects
+**What to include:**
+- One sentence — what this class is responsible for
+- Business rules or constraints future devs must know
+- What NOT to do — saves next dev from wrong approach
+- `@author`, `@since` in team projects
 - `@see` to link related classes
 
 ---
@@ -57,67 +54,63 @@ public class LiveKitTokenService {
 /**
  * Generates a student token for joining a LiveKit room.
  *
- * <p>Student tokens are restricted to subscribe-only by default.
- * canPublish is set to false — students cannot broadcast video or audio.
- * canPublishData is true to allow chat messages via data channel.</p>
+ * <p>Student tokens are subscribe-only by default.
+ * canPublish=false — students cannot broadcast video or audio.
+ * canPublishData=true — allows chat via data channel.</p>
  *
- * @param roomName    the LiveKit room identifier (e.g. "physics-101-abc123")
- * @param studentId   unique student ID from the users DB — used as identity
- * @param studentName display name shown to other participants in the room
- * @return signed JWT string to be passed to LiveKit client SDK
+ * @param roomName    LiveKit room identifier, e.g. "physics-101-abc123"
+ * @param studentId   unique student ID from DB — used as LiveKit identity
+ * @param studentName display name shown to other participants
+ * @return signed JWT string to pass to LiveKit client SDK
  * @throws IllegalStateException if identity is null or empty
  */
 public String generateStudentToken(String roomName, String studentId, String studentName) {
 ```
 
-**What to include at method level:**
-- What it does (first line, one sentence)
-- Business rules that aren't obvious from the code
-- `@param` for every parameter — what it means, not just its type
-- `@return` — what the return value represents
-- `@throws` — when and why it throws
+**What to include:**
+- First line — one sentence summary
+- Business rules not obvious from code
+- `@param` for every parameter — meaning, not just type
+- `@return` — what the value represents
+- `@throws` — when and why
 
 ---
 
 ## Inline Comments
 
 ```java
-public JoinResponse startSession(StartSessionRequest req) throws Exception {
+// Short UUID suffix avoids room name collisions across concurrent sessions
+String roomName = req.getCourseId() + "-" + UUID.randomUUID().toString().substring(0, 8);
 
-    // Short UUID suffix avoids room name collisions across concurrent sessions
-    String roomName = req.getCourseId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+// emptyTimeout=300 — LiveKit auto-deletes room if empty for 5 min
+// prevents ghost rooms if instructor disconnects without ending class
+roomServiceClient.createRoom(roomName, 300, 500).execute();
 
-    // emptyTimeout=300 — LiveKit auto-deletes room if empty for 5 min
-    // prevents ghost rooms if instructor disconnects without ending class
-    roomServiceClient.createRoom(roomName, 300, 500).execute();
-
-    // Status must be ACTIVE before students can join — checked in joinSession()
-    session.setStatus(SessionStatus.ACTIVE);
-}
+// Status must be ACTIVE before students can join — checked in joinSession()
+session.setStatus(SessionStatus.ACTIVE);
 ```
 
-**Rules for inline comments:**
+**Rules:**
 - Only write when the line is non-obvious
 - Explain the business reason, not the syntax
-- Keep it short — one line max
+- One line max — if you need more, use method Javadoc
 
 ---
 
 ## What NOT to Comment
 
 ```java
-// BAD — states the obvious
-int count = 0; // initialize count to zero
-list.add(item); // add item to list
-return token; // return the token
+// BAD — states the obvious, adds zero value
+int count = 0;          // initialize count to zero
+list.add(item);         // add item to list
+return token;           // return the token
 
 // BAD — repeats the method name
 // This method generates a token
 public String generateToken() {
 
-// GOOD — explains a non-obvious decision
-// TTL is 4 hours for instructor — longer than student (2h)
-// because instructors often prep before class starts
+// GOOD — explains a non-obvious business decision
+// TTL 4h for instructor — longer because they prep before class starts
 token.setTtl(TimeUnit.MILLISECONDS.convert(4, TimeUnit.HOURS));
 ```
 
@@ -125,13 +118,13 @@ token.setTtl(TimeUnit.MILLISECONDS.convert(4, TimeUnit.HOURS));
 
 ## Javadoc Tags Reference
 
-| Tag | Usage | Example |
-|-----|-------|---------|
+| Tag | Purpose | Example |
+|-----|---------|---------|
 | `@param` | Document a parameter | `@param roomName the LiveKit room ID` |
 | `@return` | Document return value | `@return signed JWT string` |
-| `@throws` | Document exception | `@throws RuntimeException if room not found` |
+| `@throws` | Document exception condition | `@throws RuntimeException if room not found` |
 | `@author` | Who wrote it | `@author Bhushan` |
-| `@since` | Version it was added | `@since 1.0` |
+| `@since` | Version added | `@since 1.0` |
 | `@see` | Link to related class/method | `@see RoomServiceClient` |
 | `@deprecated` | Mark as outdated | `@deprecated use generateToken() instead` |
 | `{@link}` | Inline link to class/method | `{@link LiveSessionService#startSession}` |
@@ -139,65 +132,57 @@ token.setTtl(TimeUnit.MILLISECONDS.convert(4, TimeUnit.HOURS));
 
 ---
 
-## Industry Patterns — What Big Teams Do
+## Industry Patterns by Layer
 
-### Controller Layer
+### Controller
 ```java
 /**
  * REST endpoint for students to join an active live class.
+ * Returns 403 if not enrolled, 404 if class not started.
  *
- * <p>Validates enrollment before generating token.
- * Returns 403 if student is not enrolled, 404 if class has not started.</p>
- *
- * @param req contains roomName, studentId, studentName, courseId
+ * @param req roomName, studentId, studentName, courseId
  * @return JoinResponse with LiveKit token and server URL
  */
 @PostMapping("/join")
 public ResponseEntity<JoinResponse> joinClass(@RequestBody JoinRequest req) {
 ```
 
-### Service Layer
+### Service
 ```java
 /**
- * Core business logic for joining a session.
- * Checks room is ACTIVE before issuing token.
+ * Validates room is ACTIVE then issues student token.
  *
  * @param roomName  must match an ACTIVE session in DB
- * @param studentId used as LiveKit participant identity — must be unique per room
+ * @param studentId LiveKit participant identity — must be unique per room
  * @return JoinResponse with token and server URL
  * @throws RuntimeException if no ACTIVE session found for roomName
  */
 public JoinResponse joinSession(String roomName, String studentId, String studentName) {
 ```
 
-### Entity / Model Layer
+### Entity / Model
 ```java
 /**
  * Represents a single live class session.
- * One row is created when instructor starts class,
- * updated when class ends or recording becomes available.
+ * One row created when instructor starts, updated when class ends.
  */
 @Entity
-@Table(name = "live_sessions")
 public class LiveSession {
 
-    /** S3 URL populated after recording processing completes. Null during active session. */
+    /** S3 URL set after recording completes. Null during active session. */
     private String recordingUrl;
 
-    /** Set to ENDED by webhook handler after room_finished event from LiveKit. */
+    /** Updated to ENDED by webhook handler after room_finished event. */
     @Enumerated(EnumType.STRING)
     private SessionStatus status;
 }
 ```
 
-### Config Layer
+### Config
 ```java
 /**
- * Spring configuration for LiveKit server clients.
- * Creates singleton beans used across all services.
- *
- * <p>Values are injected from application.yml.
- * Never hardcode API keys — use environment variables in production.</p>
+ * Creates LiveKit client beans.
+ * Values injected from application.yml — never hardcode API keys.
  */
 @Configuration
 public class LiveKitConfig {
@@ -205,48 +190,27 @@ public class LiveKitConfig {
 
 ---
 
-## Comment Quality Checklist
+## Generate Javadoc
 
-Before committing code, ask yourself:
-
-- [ ] Does every public class have a Javadoc?
-- [ ] Does every public method have a Javadoc?
-- [ ] Are all `@param` tags filled with meaningful descriptions?
-- [ ] Are `@throws` documented with the condition that causes them?
-- [ ] Are inline comments explaining WHY, not WHAT?
-- [ ] Are there any obvious comments that should be deleted?
-- [ ] Are business rules documented so a new dev understands without asking?
-
----
-
-## How to View Javadoc in STS
-
-**Hover tooltip** — hover over any method name → Javadoc popup appears instantly.
-
-**Generate HTML docs:**
-Right click project → `Export` → `Java` → `Javadoc` → set output folder → `Finish`
-Opens `index.html` — looks exactly like official Spring/Java documentation sites.
-
----
-
-## Generate Javadoc via Maven (Recommended)
-
-**Command — run in project root:**
+**Command:**
 ```bash
 mvn javadoc:javadoc
 ```
 
-**View generated docs — open in browser:**
+**View output:**
 ```
 d:\LMS\Livekit\lms-live-service\target\reports\apidocs\index.html
 ```
 
-Or paste directly in browser address bar:
+Or in browser:
 ```
 file:///D:/LMS/Livekit/lms-live-service/target/reports/apidocs/index.html
 ```
 
-**If build fails with warnings — add this to pom.xml to allow warnings:**
+**In STS — hover tooltip:**
+Hover over any method name → Javadoc popup appears instantly. No generation needed.
+
+**pom.xml config to stop warnings breaking build:**
 ```xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
@@ -260,220 +224,203 @@ file:///D:/LMS/Livekit/lms-live-service/target/reports/apidocs/index.html
 
 | Config | Why |
 |--------|-----|
-| `failOnWarnings=false` | Missing `@param`/`@return` warnings don't break the build |
-| `doclint=none` | Disables strict HTML validation inside Javadoc comments |
+| `failOnWarnings=false` | Missing `@param`/`@return` don't break the build |
+| `doclint=none` | Disables strict HTML validation in comments |
 
-**Common error — `semicolon missing` in Javadoc:**
-Caused by special characters like `(e.g. Q&A)` — Javadoc parser treats `&` as HTML entity start.
-Fix: remove parentheses or rewrite as plain text — `for Q&A sessions` instead of `(e.g. Q&A)`.
+> ⚠ **Common error — `semicolon missing`:**
+> Caused by `(e.g. Q&A)` — Javadoc parser treats `&` as HTML entity start.
+> Fix: write `for Q&A sessions` instead of `(e.g. Q&A)`.
 
 ---
 
-*Good comments are a gift to your future self and your teammates.*
+## Comment Quality Checklist
+
+Before committing, verify:
+
+- [ ] Every public class has a Javadoc
+- [ ] Every public method has a Javadoc
+- [ ] All `@param` tags have meaningful descriptions (not just type)
+- [ ] `@throws` documents the condition, not just the exception type
+- [ ] Inline comments explain WHY, not WHAT
+- [ ] No obvious comments that state what the code already shows
+- [ ] Business rules are documented so a new dev understands without asking
 
 ---
 
 ## How to Read Documentation & Debug SDK Errors
 
-### The Order to Follow
+### Debugging Order
 
 ```
-Error hits
+Error appears
     ↓
-Step 1 — Read the error message carefully
+1. Read the error message carefully — it's usually precise
     ↓
-Step 2 — Check the actual source (jar or GitHub)
+2. Check source jar (Ctrl+click in STS) — never lies
     ↓
-Step 3 — Official docs
+3. Official docs — for concepts and config
     ↓
-Step 4 — Maven Central for correct version/artifact
+4. Maven Central — for correct artifact name and version
     ↓
-Step 5 — Google / StackOverflow (last resort)
+5. Google / StackOverflow — last resort only
 ```
 
 ---
 
-### Step 1 — Read the Error First
+### Step 1 — Read the Error
 
-When we got `Cannot instantiate VideoGrant`:
-```
-Cannot instantiate the type VideoGrant
-```
-This tells you exactly — `VideoGrant` cannot be `new`-ed. That means it's either:
-- An **interface**
-- An **abstract class**
-- A **sealed class**
+`Cannot instantiate the type VideoGrant` tells you exactly:
+- `VideoGrant` cannot be `new`-ed
+- It's an interface, abstract class, or sealed class
+- The error answered the question before any Googling
 
-The error itself told the answer before any Googling. Train yourself to extract meaning from error messages — they are precise.
+Train yourself to extract meaning from errors — they are precise.
 
 ---
 
-### Step 2 — Read the Jar Source (Most Reliable)
+### Step 2 — Read the Source Jar
 
-When docs are wrong or outdated, the **source code never lies**.
+When docs are wrong or outdated, **source code never lies**.
 
 ```bash
-# Extract sources jar from your .m2 folder
+# Extract sources jar
 jar xf livekit-server-0.12.1-sources.jar
 
-# Read the actual class
+# Read the class
 Get-Content io/livekit/server/VideoGrant.kt
 ```
 
-From that we saw:
+Result:
 ```kotlin
 sealed class VideoGrant(val key: String, val value: Any)
 class RoomJoin(value: Boolean) : VideoGrant("roomJoin", value)
 class CanPublish(value: Boolean) : VideoGrant("canPublish", value)
 ```
 
-Sealed class = cannot instantiate directly. Each permission is its own subclass.
-That's ground truth — no blog or AI can be more accurate than the actual source.
+Sealed class = cannot instantiate. Each permission is its own subclass. Ground truth.
 
-**In STS — easier way:**
-- Hold `Ctrl` + click any class name → jumps to source directly
-- Right click jar in Maven Dependencies → `Properties` → attach sources jar
-- Now every `Ctrl+click` shows you the real implementation
+**In STS — easier:**
+- `Ctrl + click` any class name → jumps to source
+- Right click jar → `Properties` → attach sources jar → every `Ctrl+click` shows real code
 
 ---
 
 ### Step 3 — Official Docs
 
-**How to read official docs efficiently — don't read top to bottom:**
+Don't read top to bottom. Use like a dictionary:
 
 ```
-1. Know what you want to do  →  "create a room in LiveKit"
-2. Search that exact phrase in docs
-3. Find the method signature
+1. Know what you want  →  "create a room in LiveKit"
+2. Search that phrase in docs
+3. Find method signature
 4. Read @param and @return only
-5. Copy the minimal example
-6. Run it, fix errors from error message
+5. Copy minimal example → run → fix from error message
 ```
 
-| SDK | Where to look |
-|-----|--------------|
-| LiveKit Java | `docs.livekit.io` for concepts, GitHub README for Java examples |
-| Spring Boot | `docs.spring.io` — excellent, always up to date |
-| Any SDK | GitHub repo → README → look for Java/usage section |
+| SDK | Best source |
+|-----|------------|
+| LiveKit Java | GitHub README — `github.com/livekit/server-sdk-java` |
+| Spring Boot | `docs.spring.io` — excellent, always current |
+| Any SDK | GitHub repo → README → Java/usage section |
 
 ---
 
-### Step 4 — Maven Central for Artifact Names & Versions
+### Step 4 — Maven Central
 
-When artifact not found error appears — never trust a blog for artifact names:
+Never trust a blog for artifact names or versions:
 
 ```
-Go to: central.sonatype.com
-Search: io.livekit livekit-server
-Check: what artifact IDs and versions actually exist
+central.sonatype.com → search → verify artifact ID and version exist
 ```
 
-This is exactly how we caught:
-- `livekit-server-sdk` → wrong, does not exist
+How we caught the LiveKit mistake:
+- `livekit-server-sdk` → does not exist
 - `livekit-server` → correct
-- version `0.10.1` → does not exist
-- version `0.12.1` → correct, latest
-
-**Always verify on Maven Central before adding any dependency.**
+- `0.10.1` → does not exist
+- `0.12.1` → correct
 
 ---
 
 ### Step 5 — Google / StackOverflow
 
-Last resort. Useful for:
-- Common Spring Boot config issues
-- Generic Java errors
-- "How to do X in framework Y"
-
-Not useful for:
-- Specific SDK version APIs — answers are outdated
-- Artifact names — blogs copy each other's mistakes
+| Good for | Not good for |
+|----------|-------------|
+| Common Spring Boot config | Specific SDK version APIs — outdated |
+| Generic Java errors | Artifact names — blogs copy mistakes |
+| "How to do X in framework Y" | Anything version-specific |
 
 ---
 
-## Mental Model — What to Build vs What to Read
+## Mental Model — 4 Things You Need from Any Doc
 
 ```
 You want to: Generate a LiveKit token
-                ↓
-Ask: What class does this?       → AccessToken
-                ↓
-Ask: What methods does it have?  → Ctrl+click in STS or read source jar
-                ↓
-Ask: What parameters?            → Read @param in Javadoc or source
-                ↓
-Write the code → run it → fix errors from error message
-```
+    ↓
+1. What class?      → AccessToken
+2. What method?     → addGrants(), toJwt()
+3. What params?     → Ctrl+click or read @param
+4. What returns?    → signed JWT string
 
-You don't need to read the entire documentation.
-You need to know 4 things:
-1. **What class** handles what I want
-2. **What method** on that class
-3. **What parameters** it needs
-4. **What it returns**
+Write code → run → fix from error message
+```
 
 Everything else is noise until you need it.
 
 ---
 
-## Quick Reference — Where to Look for What
+## Quick Reference
 
 | Problem | Where to look |
 |---------|--------------|
-| Wrong artifact name | Maven Central — `central.sonatype.com` |
-| Method doesn't exist / wrong API | Source jar — `Ctrl+click` in STS |
-| How to configure Spring | `docs.spring.io` |
-| SDK usage example | GitHub README of that SDK |
+| Wrong artifact name | `central.sonatype.com` |
+| Method doesn't exist | Source jar — `Ctrl+click` in STS |
+| Spring Boot config | `docs.spring.io` |
+| SDK usage example | GitHub README |
 | Generic Java error | StackOverflow |
-| Cannot instantiate error | Read the class — interface/abstract/sealed |
+| Cannot instantiate | Read the class — interface / abstract / sealed |
 | Version compatibility | Maven Central release notes or GitHub releases |
 
 ---
 
-*Read errors carefully. Check source first. Docs second. Google last.*
-
----
-
-## Naming Conventions — Classes, Files & Packages
+## Naming Conventions
 
 ### Pattern: `[Domain] + [Layer]`
 
-Every file name should answer two questions: **what domain** + **what layer**.
-
 ```
-LiveSession   + Controller  = LiveSessionController
-LiveKit       + Config      = LiveKitConfig
-LiveSession   + Service     = LiveSessionService
-LiveSession   + Repository  = LiveSessionRepository
-LiveKit       + Webhook     + Controller = LiveKitWebhookController
+LiveSession  + Controller  = LiveSessionController
+LiveKit      + Config      = LiveKitConfig
+LiveSession  + Service     = LiveSessionService
+LiveSession  + Repository  = LiveSessionRepository
+LiveKit      + Webhook     + Controller = LiveKitWebhookController
 ```
 
-New developer joins → reads file name → knows exactly what's inside without opening it.
+New developer reads file name → knows exactly what's inside without opening it.
 
 ### Why not just `WebhookController`?
 
-In a real project you'll have multiple webhooks:
-
 ```
 LiveKitWebhookController    ← LiveKit room events
-PaymentWebhookController    ← Razorpay/Stripe payment events
+PaymentWebhookController    ← Razorpay/Stripe events
 SmsWebhookController        ← SMS delivery status
 ```
 
-`WebhookController` alone tells you nothing. `LiveKitWebhookController` is precise.
+`WebhookController` alone tells you nothing. Specific names are precise.
 
-### Package Naming — Same Rule
+### Package Naming
 
-```
-controller/   → HTTP entry points called by frontend
-webhook/      → callbacks from external systems (LiveKit, Razorpay)
-service/      → business logic
-repository/   → DB access
-config/       → Spring beans and configuration
-dto/          → request/response objects
-model/        → JPA entities
-```
+| Package | Contains |
+|---------|---------|
+| `controller/` | HTTP entry points called by frontend |
+| `webhook/` | Callbacks from external systems — LiveKit, Razorpay |
+| `service/` | Business logic |
+| `repository/` | DB access |
+| `config/` | Spring beans and configuration |
+| `dto/` | Request / response objects |
+| `model/` | JPA entities |
 
-Webhook gets its own package because it is a different kind of controller —
-not called by your frontend, called by an external system.
-Keeping it separate makes that architectural difference visible.
+Webhook gets its own package — it's called by an external system, not your frontend. Keeping it separate makes that architectural difference visible in the folder structure.
+
+---
+
+*Good comments are a gift to your future self and your teammates.*
+*Read errors carefully. Check source first. Docs second. Google last.*

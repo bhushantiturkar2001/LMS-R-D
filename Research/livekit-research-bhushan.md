@@ -5,11 +5,14 @@
 
 ## Why LiveKit
 
-- Open source, self-hosted → no vendor lock-in, full data control
-- Official **Java SDK** (Spring Boot ready) + Official **React SDK**
-- Built-in recording (no separate recording service needed)
-- SFU architecture → 1 instructor streams to 500+ students efficiently
-- Self-hosted cost = server only (vs Agora ~$15/1000 min, Zoom ~$25/1000 min)
+| Reason | Detail |
+|--------|--------|
+| Open source + self-hosted | No vendor lock-in, full data control |
+| Official Java SDK | Spring Boot ready — `io.livekit:livekit-server` |
+| Official React SDK | `@livekit/components-react` — plug and play |
+| Built-in recording | No separate recording service needed |
+| SFU architecture | 1 instructor streams to 500+ students efficiently |
+| Cost | Self-hosted = server cost only (vs Agora ~$15/1000 min) |
 
 ---
 
@@ -18,19 +21,20 @@
 | Concept | Description |
 |---------|-------------|
 | **Room** | Virtual classroom with a unique name |
-| **Participant** | Anyone in a room (instructor or student) |
+| **Participant** | Anyone in a room — instructor or student |
 | **Track** | A single media stream — camera, mic, or screen share |
 | **Token (JWT)** | Entry pass generated server-side; controls publish/subscribe permissions |
 | **SFU** | Server receives one stream, forwards to all subscribers — scales to 500+ |
+| **Egress** | LiveKit's recording system — saves room to MP4/S3 |
+| **Webhook** | LiveKit calls your backend when room events happen |
 
 ---
 
-## Backend Setup — Step by Step
+## Backend Setup
 
-### Step 1 — Maven Dependency
+### 1 — Maven Dependency
 
 ```xml
-<!-- Correct artifact — livekit-server-sdk does NOT exist on Maven Central -->
 <dependency>
     <groupId>io.livekit</groupId>
     <artifactId>livekit-server</artifactId>
@@ -38,14 +42,15 @@
 </dependency>
 ```
 
-> **Common mistakes:**
-> - artifactId `livekit-server-sdk` does not exist → correct is `livekit-server`
-> - version `0.10.1` does not exist → use `0.12.1`
-> - Always verify artifact name and version on `central.sonatype.com` before adding any dependency
+> ⚠ **Common mistakes:**
+> - `livekit-server-sdk` → does NOT exist on Maven Central
+> - `livekit-server` → correct artifactId
+> - version `0.10.1` → does not exist, use `0.12.1`
+> - Always verify on `central.sonatype.com` before adding any dependency
 
 ---
 
-### Step 2 — application.yml
+### 2 — application.yml
 
 ```yaml
 spring:
@@ -74,92 +79,96 @@ livekit:
     key: devkey
     secret: devsecret
   server:
-    url: ws://localhost:7880        # frontend uses this — WebSocket connection
-    api-url: http://localhost:7880  # backend RoomServiceClient uses this — HTTP REST
+    url: ws://localhost:7880        # frontend WebSocket connection
+    api-url: http://localhost:7880  # backend RoomServiceClient HTTP REST
   webhook:
     secret: devsecret
 ```
-
-> - `livekit.*` shows **"Unknown property"** warning in IDE — harmless, `@Value` still works fine
-> - `ws://` = WebSocket — persistent two-way connection. Local: `ws://`, Production: `wss://`
-> - `webhook.secret` = LiveKit signs webhook payloads with this. Same as `api.secret` in dev
-> - **Two URLs needed** — passing `ws://` to `RoomServiceClient` throws: `Expected URL scheme 'http' or 'https' but was 'ws'`
 
 | Property | Value | Used by |
 |----------|-------|---------|
 | `livekit.server.url` | `ws://localhost:7880` | React frontend — WebSocket video/audio |
 | `livekit.server.api-url` | `http://localhost:7880` | Spring Boot `RoomServiceClient` — HTTP REST |
+| `livekit.webhook.secret` | `devsecret` | Verify incoming webhook signatures |
+
+> ⚠ **Two URLs are required.** Passing `ws://` to `RoomServiceClient` throws:
+> `Expected URL scheme 'http' or 'https' but was 'ws'`
+
+> `livekit.*` shows "Unknown property" warning in IDE — harmless. `@Value` still works fine.
 
 ---
 
-### Step 3 — Docker (LiveKit Server)
+### 3 — Docker (LiveKit Server)
 
-**First time only:**
+**One-time setup:**
 ```bash
-docker run -d -p 7880:7880 -p 7881:7881 -p 7882:7882/udp -e LIVEKIT_KEYS="devkey: devsecret" --name livekit-dev livekit/livekit-server --dev
+docker run -d -p 7880:7880 -p 7881:7881 -p 7882:7882/udp \
+  -e LIVEKIT_KEYS="devkey: devsecret" \
+  --name livekit-dev livekit/livekit-server --dev
 ```
 
-**Every day after that:**
+**Daily commands:**
 ```bash
-docker start livekit-dev   # start
-docker stop livekit-dev    # stop
-docker logs livekit-dev    # check logs
+docker start livekit-dev    # start
+docker stop livekit-dev     # stop
+docker logs livekit-dev     # check logs
+docker ps                   # verify running
 ```
 
 | Flag | Meaning |
 |------|---------|
-| `-d` | Run in background (detached) |
+| `-d` | Run in background (detached) — terminal stays free |
 | `-p 7880:7880` | HTTP / WebSocket port |
 | `-p 7881:7881` | RTC TCP media port |
-| `-p 7882:7882/udp` | RTC UDP media port |
-| `-e LIVEKIT_KEYS` | API key:secret passed as env variable |
-| `--name livekit-dev` | Container name — reuse with `docker start` |
+| `-p 7882:7882/udp` | RTC UDP media port — `/udp` means UDP protocol |
+| `-e LIVEKIT_KEYS` | API key:secret as environment variable |
+| `--name livekit-dev` | Named container — reuse with `docker start` |
 | `--dev` | Dev mode — relaxed security, verbose logs |
 | `--rm` | ⚠ Avoid — auto-deletes container on stop |
 
-> Image vs Container: `--rm` deletes the container, never the image. Image stays forever once pulled.
+> **Image vs Container:** `--rm` deletes the container, never the image.
+> Image stays forever once pulled. Container is just a running instance.
 
 ---
 
-### Step 4 — Package Structure
+### 4 — Package Structure
 
 ```
 com.knowlia.lms_live_service
-├── config/        → LiveKit bean config, CORS config
-├── model/         → Entity (LiveSession)
-├── repository/    → JPA repo
-├── dto/           → Request / Response objects
-├── service/       → Token generation, session logic
-├── controller/    → REST endpoints
-└── webhook/       → LiveKit event handler
+├── config/        → LiveKitConfig (bean), CorsConfig
+├── model/         → LiveSession (entity)
+├── repository/    → LiveSessionRepository (JPA)
+├── dto/           → JoinRequest, JoinResponse, StartSessionRequest
+├── service/       → LiveKitTokenService, LiveSessionService
+├── controller/    → LiveSessionController
+└── webhook/       → LiveKitWebhookController
 ```
 
 ---
 
-### Step 5 — Code Build Order
+### 5 — Code Build Order
 
-| Order | Class | Package | Purpose |
-|-------|-------|---------|---------|
-| 1 | `LiveKitConfig` | `config` | `@Bean` for `RoomServiceClient` — inject `api-url`, `key`, `secret` |
-| 2 | `CorsConfig` | `config` | Allow React frontend (`localhost:5173`) to call backend |
-| 3 | `LiveSession` | `model` | DB entity for session tracking |
-| 4 | `LiveSessionRepository` | `repository` | JPA repo |
-| 5 | `JoinRequest / JoinResponse` | `dto` | Student join request/response |
+| # | Class | Package | Purpose |
+|---|-------|---------|---------|
+| 1 | `LiveKitConfig` | `config` | `@Bean` for `RoomServiceClient` — reads `api-url`, `key`, `secret` from yml |
+| 2 | `CorsConfig` | `config` | Allow React (`localhost:5173`) to call backend (`localhost:8084`) |
+| 3 | `LiveSession` | `model` | JPA entity — one row per live class session |
+| 4 | `LiveSessionRepository` | `repository` | JPA repo — `findByRoomName`, `existsByRoomNameAndStatus` |
+| 5 | `JoinRequest / JoinResponse` | `dto` | Student join request and token response |
 | 6 | `StartSessionRequest` | `dto` | Instructor start class request |
-| 7 | `LiveKitTokenService` | `service` | Token generation — instructor + student |
-| 8 | `LiveSessionService` | `service` | Business logic — create room, join, end session |
+| 7 | `LiveKitTokenService` | `service` | Generate instructor + student JWT tokens |
+| 8 | `LiveSessionService` | `service` | Business logic — create room, join checks, end session |
 | 9 | `LiveSessionController` | `controller` | REST API — `/start`, `/join`, `/end`, `/status` |
-| 10 | `LiveKitWebhookController` | `webhook` | Handle LiveKit events |
+| 10 | `LiveKitWebhookController` | `webhook` | Handle LiveKit room events |
 
 ---
 
-### Step 6 — Token Generation (Correct API)
+### 6 — Token Generation (Correct API)
 
-> `VideoGrant` is a **sealed class** — cannot do `new VideoGrant()`.
-> Each permission is a separate subclass. This is the correct way:
+> `VideoGrant` is a **sealed class** — `new VideoGrant()` throws `Cannot instantiate`.
+> Each permission is a separate subclass — this is the correct way:
 
 ```java
-// Correct imports
 import io.livekit.server.AccessToken;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
@@ -168,22 +177,22 @@ import io.livekit.server.CanSubscribe;
 import io.livekit.server.CanPublishData;
 import io.livekit.server.RoomAdmin;
 
-// Instructor token
+// Instructor — full control
 token.addGrants(
     new RoomJoin(true),
     new RoomName(roomName),
-    new CanPublish(true),       // can share camera/mic/screen
+    new CanPublish(true),       // camera / mic / screen share
     new CanSubscribe(true),
-    new CanPublishData(true),   // chat
-    new RoomAdmin(true)         // mute/kick participants
+    new CanPublishData(true),   // chat via data channel
+    new RoomAdmin(true)         // mute / kick participants
 );
 token.setTtl(TimeUnit.MILLISECONDS.convert(4, TimeUnit.HOURS));
 
-// Student token
+// Student — view only
 token.addGrants(
     new RoomJoin(true),
     new RoomName(roomName),
-    new CanPublish(false),      // view only
+    new CanPublish(false),      // cannot broadcast
     new CanSubscribe(true),
     new CanPublishData(true)    // chat allowed
 );
@@ -192,35 +201,35 @@ token.setTtl(TimeUnit.MILLISECONDS.convert(2, TimeUnit.HOURS));
 
 ---
 
-### Step 7 — REST API Endpoints
+### 7 — REST API Endpoints
 
-| Method | URL | Who | What |
-|--------|-----|-----|------|
-| `POST` | `/api/live/start` | Instructor | Creates room, returns instructor token |
-| `POST` | `/api/live/join` | Student | Validates room active, returns student token |
-| `POST` | `/api/live/end?roomName=x` | Instructor | Deletes room, fires webhooks |
-| `GET` | `/api/live/status?roomName=x` | Frontend | Check if class is live |
-
----
-
-### Step 8 — Webhook Events
-
-| Event | When | Action |
-|-------|------|--------|
-| `room_started` | Room created | Log / DB update |
-| `room_finished` | Room deleted | Mark session ENDED |
-| `participant_joined` | Someone joined | Attendance (Kafka later) |
-| `participant_left` | Someone left | Duration calc (Kafka later) |
-| `egress_ended` | Recording ready | Save S3 URL to DB |
-
-> Always return `200 OK` quickly from webhook — LiveKit retries on non-200.
-> Verify signature first using `WebhookReceiver` — prevents fake webhook calls.
+| Method | URL | Who calls | What it does |
+|--------|-----|-----------|-------------|
+| `POST` | `/api/live/start` | Instructor | Creates room in LiveKit, returns instructor token |
+| `POST` | `/api/live/join` | Student | Checks room ACTIVE in DB, returns student token |
+| `POST` | `/api/live/end?roomName=x` | Instructor | Deletes room from LiveKit, fires webhooks |
+| `GET` | `/api/live/status?roomName=x` | Frontend | Returns 200 if ACTIVE, 404 if not |
 
 ---
 
-## Frontend Setup — Step by Step
+### 8 — Webhook Events
 
-### Step 1 — Create React Project
+| Event | When fired | Action taken |
+|-------|-----------|-------------|
+| `room_started` | Room created | Log / confirm session started |
+| `room_finished` | Room deleted | Mark session ENDED in DB |
+| `participant_joined` | Someone joined | Attendance tracking (Kafka — future) |
+| `participant_left` | Someone left | Duration calculation (Kafka — future) |
+| `egress_ended` | Recording file ready | Save S3 URL to DB, notify students |
+
+> Always return `200 OK` quickly — LiveKit retries webhook on non-200 response.
+> Verify signature using `WebhookReceiver` before processing — prevents fake calls.
+
+---
+
+## Frontend Setup
+
+### 1 — Create React Project
 
 ```bash
 npm create vite@latest LiveKit-Frontend -- --template react
@@ -228,108 +237,118 @@ cd LiveKit-Frontend
 npm install
 ```
 
-### Step 2 — Install LiveKit Packages
+### 2 — Install LiveKit Packages
 
 ```bash
 npm install @livekit/components-react livekit-client @livekit/components-styles
 ```
 
-### Step 3 — Environment Variables
+### 3 — Environment Variables (`.env`)
 
-Create `.env` in project root:
 ```
 VITE_BACKEND_URL=http://localhost:8084
 VITE_LIVEKIT_URL=ws://localhost:7880
 ```
 
-> Vite uses `VITE_` prefix for env variables. Access in code via `import.meta.env.VITE_BACKEND_URL`.
+> Vite requires `VITE_` prefix. Access via `import.meta.env.VITE_BACKEND_URL` in code.
 
-### Step 4 — File Structure
+### 4 — File Structure
 
 ```
 src/
 ├── api/
-│   └── liveApi.js          → fetch calls to Spring Boot backend
+│   └── liveApi.js           → all fetch calls to Spring Boot backend
 ├── components/
-│   ├── RoleSelector.jsx    → choose instructor or student
-│   ├── InstructorLobby.jsx → enter details, call /api/live/start
-│   ├── StudentLobby.jsx    → enter room name, call /api/live/join
-│   └── VideoConference.jsx → camera, mic, screen share, leave button
-└── App.jsx                 → screen navigation (role → lobby → room)
+│   ├── RoleSelector.jsx     → choose instructor or student
+│   ├── InstructorLobby.jsx  → form to start class → calls /api/live/start
+│   ├── StudentLobby.jsx     → form to join class → calls /api/live/join
+│   └── VideoConference.jsx  → camera, mic, screen share, leave button
+└── App.jsx                  → screen navigation: role → lobby → room
 ```
 
-### Step 5 — Key Components Used
+### 5 — Key LiveKit Components
 
-| Component | From | Purpose |
-|-----------|------|---------|
-| `LiveKitRoom` | `@livekit/components-react` | Wraps entire room, manages connection |
-| `GridLayout` | `@livekit/components-react` | Shows all participant video tiles |
-| `ParticipantTile` | `@livekit/components-react` | Single participant video/avatar |
-| `ControlBar` | `@livekit/components-react` | Mic, camera, screen share, leave buttons |
-| `RoomAudioRenderer` | `@livekit/components-react` | Plays all remote audio — must include |
-| `useTracks` | `@livekit/components-react` | Hook to get all active tracks in room |
-| `useRoomContext` | `@livekit/components-react` | Access room object to call `disconnect()` |
+| Component | Purpose |
+|-----------|---------|
+| `LiveKitRoom` | Wraps entire room, manages WebSocket connection to LiveKit |
+| `GridLayout` | Displays all participant video tiles in a grid |
+| `ParticipantTile` | Single participant video or avatar placeholder |
+| `ControlBar` | Mic, camera, screen share, leave buttons — built-in UI |
+| `RoomAudioRenderer` | Plays all remote audio tracks — **must include or no sound** |
+| `useTracks` | Hook — returns all active camera/screen tracks in room |
+| `useRoomContext` | Hook — access room object to call `room.disconnect()` |
 
-### Step 6 — Run Frontend
+### 6 — Run
 
 ```bash
-npm run dev
+npm run dev    # starts at http://localhost:5173
+npm run build  # production build → dist/
 ```
-
-Opens at `http://localhost:5173`
 
 ---
 
-## Important Gotchas
+## Common Gotchas
 
 ### Identity Conflict
-> Same `identity` joining same room twice → LiveKit kicks the first connection.
-> In dev, use unique IDs per tab. In production, use real user IDs from auth system.
+> Same `identity` joining same room twice → LiveKit **kicks the first connection**.
 
 ```js
-// Auto-generate unique ID to avoid conflict in dev/testing
+// Auto-generate unique ID per session — prevents conflict in dev/testing
 const [studentId] = useState(() => 'student-' + Math.random().toString(36).substring(2, 8));
 ```
 
-### CORS
-> React (`localhost:5173`) calling Spring Boot (`localhost:8084`) requires CORS config.
-> Add `CorsConfig.java` in `config` package — allow `http://localhost:5173` on `/api/**`.
-
-### Endpoints that need Docker running
-
-| Endpoint | Needs Docker |
-|----------|-------------|
-| `/api/live/start` | ✅ calls `createRoom` on LiveKit |
-| `/api/live/end` | ✅ calls `deleteRoom` on LiveKit |
-| `/api/live/join` | ❌ only checks DB + generates token |
-| `/api/live/status` | ❌ only checks DB |
+In production, use real user ID from auth system — conflict never happens with real users.
 
 ---
 
-## Recording
+### CORS Error (`Failed to fetch`)
+> React on `localhost:5173` calling Spring Boot on `localhost:8084` = CORS blocked by browser.
+> Fix: add `CorsConfig.java` in `config` package allowing `http://localhost:5173` on `/api/**`.
+> After adding, **restart Spring Boot** — CORS config is not hot-reloaded.
 
-| Type | Output | Use Case |
+---
+
+### Which Endpoints Need Docker
+
+| Endpoint | Needs Docker | Why |
+|----------|-------------|-----|
+| `/api/live/start` | ✅ Yes | Calls `createRoom()` on LiveKit server |
+| `/api/live/end` | ✅ Yes | Calls `deleteRoom()` on LiveKit server |
+| `/api/live/join` | ❌ No | Only checks DB + generates token |
+| `/api/live/status` | ❌ No | Only checks DB |
+
+---
+
+## Recording Types
+
+| Type | Output | Best for |
 |------|--------|----------|
-| **Composite** | Single MP4 (all participants) | LMS playback — recommended |
-| **Track** | Separate file per participant | Post-editing |
-| **RTMP** | Stream to YouTube/Facebook | Public live stream |
+| **Composite** | Single MP4 — all participants in one file | LMS playback after class |
+| **Track** | Separate file per participant | Post-production editing |
+| **RTMP** | Live stream to YouTube / Facebook | Public broadcast |
 
 ---
 
-## Service Flow (LMS)
+## Full Service Flow
 
 ```
-Instructor → POST /api/live/start → Spring Boot creates room in LiveKit → returns token
-Instructor connects to LiveKit with token → starts camera/mic
+INSTRUCTOR
+  → POST /api/live/start
+  → Spring Boot: createRoom in LiveKit + save DB (ACTIVE) + generate instructor token
+  → Instructor connects to LiveKit with token → camera/mic starts
 
-Student → POST /api/live/join → Spring Boot checks DB → returns student token
-Student connects to LiveKit with token → sees instructor video/audio
+STUDENT
+  → POST /api/live/join
+  → Spring Boot: check DB room is ACTIVE + generate student token
+  → Student connects to LiveKit with token → sees instructor video/audio
 
-Class ends → instructor calls /api/live/end → LiveKit deletes room
-LiveKit fires webhooks → Spring Boot updates DB
-Kafka events (future) → Attendance, Recording, Notification services
+CLASS ENDS
+  → POST /api/live/end
+  → Spring Boot: deleteRoom in LiveKit + mark DB (ENDED)
+  → LiveKit fires webhooks → room_finished, egress_ended
+  → Future: Kafka → Attendance Service, Recording Service, Notification Service
 ```
 
 ---
 
-*Source: LiveKit Official Docs + Maven Central verification + hands-on POC*
+*Source: LiveKit Official Docs + Maven Central + hands-on POC*

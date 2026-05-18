@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <application:Application xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_CaDhsE0QEfGC17rDPFtHFw" elementId="org.eclipse.e4.legacy.ide.application" contributorURI="platform:/plugin/org.eclipse.platform" selectedElement="_CaDhsU0QEfGC17rDPFtHFw" bindingContexts="_CaJBQU0QEfGC17rDPFtHFw">
-  <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;workbench>&#xD;&#xA;&lt;mruList>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitWebhookController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/webhook/LiveKitWebhookController.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/webhook/LiveKitWebhookController.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveSessionService.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveSessionService.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitTokenService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;JoinResponse.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinResponse.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinResponse.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;JoinRequest.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinRequest.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinRequest.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;StartSessionRequest.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/StartSessionRequest.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/StartSessionRequest.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionRepository.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/repository/LiveSessionRepository.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/repository/LiveSessionRepository.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSession.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/model/LiveSession.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/model/LiveSession.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitConfig.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;SpringBootYMLPropertyEditor&quot; name=&quot;application.yml&quot; tooltip=&quot;lms-live-service/src/main/resources/application.yml&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/resources/application.yml&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.m2e.editor.MavenPomEditor&quot; name=&quot;pom.xml&quot; tooltip=&quot;lms-live-service/pom.xml&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/pom.xml&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;/mruList>&#xD;&#xA;&lt;/workbench>"/>
+  <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;workbench>&#xD;&#xA;&lt;mruList>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.m2e.editor.MavenPomEditor&quot; name=&quot;pom.xml&quot; tooltip=&quot;lms-live-service/pom.xml&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/pom.xml&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitWebhookController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/webhook/LiveKitWebhookController.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/webhook/LiveKitWebhookController.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveSessionService.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveSessionService.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitTokenService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;JoinResponse.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinResponse.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinResponse.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;JoinRequest.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinRequest.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/JoinRequest.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;StartSessionRequest.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/StartSessionRequest.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/dto/StartSessionRequest.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionRepository.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/repository/LiveSessionRepository.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/repository/LiveSessionRepository.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSession.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/model/LiveSession.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/model/LiveSession.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitConfig.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;file factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; id=&quot;SpringBootYMLPropertyEditor&quot; name=&quot;application.yml&quot; tooltip=&quot;lms-live-service/src/main/resources/application.yml&quot;>&#xD;&#xA;&lt;persistable path=&quot;/lms-live-service/src/main/resources/application.yml&quot;/>&#xD;&#xA;&lt;/file>&#xD;&#xA;&lt;/mruList>&#xD;&#xA;&lt;/workbench>"/>
   <tags>activeSchemeId:org.eclipse.ui.defaultAcceleratorConfiguration</tags>
   <children xsi:type="basic:TrimmedWindow" xmi:id="_CaDhsU0QEfGC17rDPFtHFw" elementId="IDEWindow" contributorURI="platform:/plugin/org.eclipse.platform" selectedElement="_DNkpU00QEfGC17rDPFtHFw" label="%trimmedwindow.label.eclipseSDK" x="0" y="0" width="1024" height="768">
     <persistedState key="coolBarVisible" value="true"/>
@@ -82,10 +82,12 @@
           <tags>persp.editorOnboardingCommand:New$$$Ctrl+N</tags>
           <tags>persp.editorOnboardingCommand:Open Type$$$Ctrl+Shift+T</tags>
           <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PJU0QEfGC17rDPFtHFw" selectedElement="_DY_PMU0QEfGC17rDPFtHFw" horizontal="true">
-            <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PJk0QEfGC17rDPFtHFw" containerData="2500" selectedElement="_DY_PJ00QEfGC17rDPFtHFw">
-              <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PJ00QEfGC17rDPFtHFw" containerData="6000" selectedElement="_DY_PKE0QEfGC17rDPFtHFw">
-                <children xsi:type="basic:PartStack" xmi:id="_DY_PKE0QEfGC17rDPFtHFw" elementId="left" containerData="6600" selectedElement="_DY_PKU0QEfGC17rDPFtHFw">
+            <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PJk0QEfGC17rDPFtHFw" visible="false" containerData="2500" selectedElement="_DY_PJ00QEfGC17rDPFtHFw">
+              <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PJ00QEfGC17rDPFtHFw" visible="false" containerData="6000" selectedElement="_DY_PKE0QEfGC17rDPFtHFw">
+                <children xsi:type="basic:PartStack" xmi:id="_DY_PKE0QEfGC17rDPFtHFw" elementId="left" visible="false" containerData="6600" selectedElement="_DY_PKU0QEfGC17rDPFtHFw">
                   <tags>org.eclipse.e4.primaryNavigationStack</tags>
+                  <tags>Minimized</tags>
+                  <tags>MinimizedByZoom</tags>
                   <children xsi:type="advanced:Placeholder" xmi:id="_DY_PKU0QEfGC17rDPFtHFw" elementId="org.eclipse.jdt.ui.PackageExplorer" ref="_DYsUME0QEfGC17rDPFtHFw" closeable="true">
                     <tags>View</tags>
                     <tags>categoryTag:Java</tags>
@@ -120,16 +122,22 @@
             </children>
             <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PMU0QEfGC17rDPFtHFw" containerData="7500" selectedElement="_DY_PPU0QEfGC17rDPFtHFw">
               <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PMk0QEfGC17rDPFtHFw" containerData="7500" selectedElement="_DY_PM00QEfGC17rDPFtHFw" horizontal="true">
-                <children xsi:type="advanced:Placeholder" xmi:id="_DY_PM00QEfGC17rDPFtHFw" elementId="org.eclipse.ui.editorss" containerData="7500" ref="_DYff4E0QEfGC17rDPFtHFw"/>
-                <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PNE0QEfGC17rDPFtHFw" containerData="2500">
-                  <children xsi:type="basic:PartStack" xmi:id="_DY_PNU0QEfGC17rDPFtHFw" elementId="org.eclipse.mylyn.tasks.ui.views.tasksMStack" containerData="5000" selectedElement="_DY_PNk0QEfGC17rDPFtHFw">
+                <children xsi:type="advanced:Placeholder" xmi:id="_DY_PM00QEfGC17rDPFtHFw" elementId="org.eclipse.ui.editorss" containerData="7500" ref="_DYff4E0QEfGC17rDPFtHFw">
+                  <tags>Maximized</tags>
+                </children>
+                <children xsi:type="basic:PartSashContainer" xmi:id="_DY_PNE0QEfGC17rDPFtHFw" visible="false" containerData="2500">
+                  <children xsi:type="basic:PartStack" xmi:id="_DY_PNU0QEfGC17rDPFtHFw" elementId="org.eclipse.mylyn.tasks.ui.views.tasksMStack" visible="false" containerData="5000" selectedElement="_DY_PNk0QEfGC17rDPFtHFw">
+                    <tags>Minimized</tags>
+                    <tags>MinimizedByZoom</tags>
                     <children xsi:type="advanced:Placeholder" xmi:id="_DY_PNk0QEfGC17rDPFtHFw" elementId="org.eclipse.mylyn.tasks.ui.views.tasks" ref="_DY7kwE0QEfGC17rDPFtHFw" closeable="true">
                       <tags>View</tags>
                       <tags>categoryTag:Mylyn</tags>
                     </children>
                   </children>
-                  <children xsi:type="basic:PartStack" xmi:id="_DY_PN00QEfGC17rDPFtHFw" elementId="right" containerData="5000" selectedElement="_DY_POE0QEfGC17rDPFtHFw">
+                  <children xsi:type="basic:PartStack" xmi:id="_DY_PN00QEfGC17rDPFtHFw" elementId="right" visible="false" containerData="5000" selectedElement="_DY_POE0QEfGC17rDPFtHFw">
                     <tags>org.eclipse.e4.secondaryNavigationStack</tags>
+                    <tags>Minimized</tags>
+                    <tags>MinimizedByZoom</tags>
                     <children xsi:type="advanced:Placeholder" xmi:id="_DY_POE0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.views.ContentOutline" ref="_DYvXiU0QEfGC17rDPFtHFw" closeable="true">
                       <tags>View</tags>
                       <tags>categoryTag:General</tags>
@@ -153,8 +161,11 @@
                   </children>
                 </children>
               </children>
-              <children xsi:type="basic:PartStack" xmi:id="_DY_PPU0QEfGC17rDPFtHFw" elementId="bottom" containerData="2500" selectedElement="_DY_PQk0QEfGC17rDPFtHFw">
+              <children xsi:type="basic:PartStack" xmi:id="_DY_PPU0QEfGC17rDPFtHFw" elementId="bottom" visible="false" containerData="2500" selectedElement="_DY_PQk0QEfGC17rDPFtHFw">
                 <tags>org.eclipse.e4.secondaryDataStack</tags>
+                <tags>Minimized</tags>
+                <tags>MinimizedByZoom</tags>
+                <tags>active</tags>
                 <children xsi:type="advanced:Placeholder" xmi:id="_DY_PPk0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.views.ProblemView" ref="_DYvXgk0QEfGC17rDPFtHFw" closeable="true">
                   <tags>View</tags>
                   <tags>categoryTag:General</tags>
@@ -226,32 +237,29 @@
       <tags>categoryTag:Help</tags>
     </sharedElements>
     <sharedElements xsi:type="advanced:Area" xmi:id="_DYff4E0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.editorss" selectedElement="_DYff4U0QEfGC17rDPFtHFw">
-      <children xsi:type="basic:PartStack" xmi:id="_DYff4U0QEfGC17rDPFtHFw" elementId="org.eclipse.e4.primaryDataStack" selectedElement="_KOL1QE0kEfGC17rDPFtHFw">
+      <children xsi:type="basic:PartStack" xmi:id="_DYff4U0QEfGC17rDPFtHFw" elementId="org.eclipse.e4.primaryDataStack" selectedElement="_0E02gFEKEfGers2RSlIUpQ">
         <tags>EditorStack</tags>
         <tags>org.eclipse.e4.primaryDataStack</tags>
-        <tags>active</tags>
         <children xsi:type="basic:Part" xmi:id="_TFoxYE0UEfGC17rDPFtHFw" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="application.yml" iconURI="platform:/plugin/org.springframework.tooling.boot.ls/icons/spring_yml.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;SpringBootYMLPropertyEditor&quot; name=&quot;application.yml&quot; partName=&quot;application.yml&quot; title=&quot;application.yml&quot; tooltip=&quot;lms-live-service/src/main/resources/application.yml&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/resources/application.yml&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;535&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;SpringBootYMLPropertyEditor&quot; name=&quot;application.yml&quot; partName=&quot;application.yml&quot; title=&quot;application.yml&quot; tooltip=&quot;lms-live-service/src/main/resources/application.yml&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/resources/application.yml&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;9&quot; selectionOffset=&quot;526&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>SpringBootYMLPropertyEditor</tags>
         </children>
         <children xsi:type="basic:Part" xmi:id="_Ny_u4E0bEfGC17rDPFtHFw" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="LiveKitConfig.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitConfig.java&quot; partName=&quot;LiveKitConfig.java&quot; title=&quot;LiveKitConfig.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;386&quot; selectionTopPixel=&quot;17&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitConfig.java&quot; partName=&quot;LiveKitConfig.java&quot; title=&quot;LiveKitConfig.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/config/LiveKitConfig.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;386&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
         </children>
         <children xsi:type="basic:Part" xmi:id="_KOL1QE0kEfGC17rDPFtHFw" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="LiveKitTokenService.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitTokenService.java&quot; partName=&quot;LiveKitTokenService.java&quot; title=&quot;LiveKitTokenService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;1502&quot; selectionTopPixel=&quot;690&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveKitTokenService.java&quot; partName=&quot;LiveKitTokenService.java&quot; title=&quot;LiveKitTokenService.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/service/LiveKitTokenService.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;1502&quot; selectionTopPixel=&quot;582&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
-          <tags>active</tags>
-          <tags>activeOnClose</tags>
         </children>
         <children xsi:type="basic:Part" xmi:id="_ALOeIE3KEfGtM_R2AXGvoA" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="LiveSessionController.java" iconURI="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/jcu_obj.png" closeable="true">
-          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionController.java&quot; partName=&quot;LiveSessionController.java&quot; title=&quot;LiveSessionController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;3790&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.jdt.ui.CompilationUnitEditor&quot; name=&quot;LiveSessionController.java&quot; partName=&quot;LiveSessionController.java&quot; title=&quot;LiveSessionController.java&quot; tooltip=&quot;lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/src/main/java/com/knowlia/lms_live_service/controller/LiveSessionController.java&quot;/>&#xD;&#xA;&lt;editorState selectionHorizontalPixel=&quot;0&quot; selectionLength=&quot;0&quot; selectionOffset=&quot;947&quot; selectionTopPixel=&quot;0&quot;/>&#xD;&#xA;&lt;/editor>"/>
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
@@ -261,6 +269,12 @@
           <tags>Editor</tags>
           <tags>removeOnHide</tags>
           <tags>org.eclipse.jdt.ui.CompilationUnitEditor</tags>
+        </children>
+        <children xsi:type="basic:Part" xmi:id="_0E02gFEKEfGers2RSlIUpQ" elementId="org.eclipse.e4.ui.compatibility.editor" contributionURI="bundleclass://org.eclipse.ui.workbench/org.eclipse.ui.internal.e4.compatibility.CompatibilityEditor" label="lms-live-service/pom.xml" iconURI="platform:/plugin/org.eclipse.m2e.editor/icons/editor-pom.gif" closeable="true">
+          <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;editor id=&quot;org.eclipse.m2e.editor.MavenPomEditor&quot; name=&quot;pom.xml&quot; partName=&quot;lms-live-service/pom.xml&quot; title=&quot;lms-live-service/pom.xml&quot; tooltip=&quot;lms-live-service/pom.xml&quot;>&#xD;&#xA;&lt;input factoryID=&quot;org.eclipse.ui.part.FileEditorInputFactory&quot; path=&quot;/lms-live-service/pom.xml&quot;/>&#xD;&#xA;&lt;/editor>"/>
+          <tags>Editor</tags>
+          <tags>removeOnHide</tags>
+          <tags>org.eclipse.m2e.editor.MavenPomEditor</tags>
         </children>
       </children>
     </sharedElements>
@@ -336,6 +350,8 @@
       <persistedState key="memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#xD;&#xA;&lt;view/>"/>
       <tags>View</tags>
       <tags>categoryTag:General</tags>
+      <tags>active</tags>
+      <tags>activeOnClose</tags>
       <menus xmi:id="_47QcAE2_EfGtM_R2AXGvoA" elementId="org.eclipse.ui.console.ConsoleView">
         <tags>ViewMenu</tags>
         <tags>menuContribution:menu</tags>
@@ -439,7 +455,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSry0E0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.workbench.file">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="__J4W4E2-EfGtM_R2AXGvoA" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_CbpdQk0QEfGC17rDPFtHFw"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_cKeysFEJEfGers2RSlIUpQ" elementId="print" visible="false" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/print_edit.png" tooltip="Print" command="_CbpdQk0QEfGC17rDPFtHFw"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ4E0QEfGC17rDPFtHFw" elementId="group.edit" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -447,8 +463,8 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ4k0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.workbench.edit">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="__J6MEE2-EfGtM_R2AXGvoA" elementId="undo" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/undo_edit.png" tooltip="Undo" enabled="false" command="_CbgTb00QEfGC17rDPFtHFw"/>
-        <children xsi:type="menu:HandledToolItem" xmi:id="__J6zIE2-EfGtM_R2AXGvoA" elementId="redo" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/redo_edit.png" tooltip="Redo" enabled="false" command="_CbhhxU0QEfGC17rDPFtHFw"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_cKgn4FEJEfGers2RSlIUpQ" elementId="undo" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/undo_edit.png" tooltip="Undo" enabled="false" command="_CbgTb00QEfGC17rDPFtHFw"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_cKh2AFEJEfGers2RSlIUpQ" elementId="redo" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/redo_edit.png" tooltip="Redo" enabled="false" command="_CbhhxU0QEfGC17rDPFtHFw"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ400QEfGC17rDPFtHFw" elementId="additions" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -463,7 +479,7 @@
       <children xsi:type="menu:ToolBar" xmi:id="_DbGvAE0QEfGC17rDPFtHFw" elementId="org.eclipse.search.searchActionSet">
         <tags>Draggable</tags>
       </children>
-      <children xsi:type="menu:ToolBar" xmi:id="_OL1ssE0bEfGC17rDPFtHFw" elementId="org.eclipse.ui.edit.text.actionSet.presentation">
+      <children xsi:type="menu:ToolBar" xmi:id="_OL1ssE0bEfGC17rDPFtHFw" elementId="org.eclipse.ui.edit.text.actionSet.presentation" visible="false">
         <tags>Draggable</tags>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ5U0QEfGC17rDPFtHFw" elementId="group.nav" toBeRendered="false">
@@ -472,7 +488,7 @@
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ500QEfGC17rDPFtHFw" elementId="org.eclipse.ui.workbench.navigate">
         <tags>Draggable</tags>
-        <children xsi:type="menu:HandledToolItem" xmi:id="__J8BQE2-EfGtM_R2AXGvoA" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" enabled="false" type="Check" command="_CboPIk0QEfGC17rDPFtHFw"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_cKjrMFEJEfGers2RSlIUpQ" elementId="org.eclipse.ui.window.pinEditor" iconURI="platform:/plugin/org.eclipse.ui/icons/full/etool16/pin_editor.png" tooltip="Pin Editor" enabled="false" type="Check" command="_CboPIk0QEfGC17rDPFtHFw"/>
       </children>
       <children xsi:type="menu:ToolBar" xmi:id="_DSsZ6E0QEfGC17rDPFtHFw" elementId="group.editor" toBeRendered="false">
         <tags>toolbarSeparator</tags>
@@ -507,7 +523,7 @@
       </children>
     </trimBars>
     <trimBars xmi:id="_CaDht00QEfGC17rDPFtHFw" elementId="org.eclipse.ui.trim.vertical1" contributorURI="platform:/plugin/org.eclipse.platform" side="Left">
-      <children xsi:type="menu:ToolControl" xmi:id="_D5Mk8E0rEfGC17rDPFtHFw" elementId="left(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" toBeRendered="false" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
+      <children xsi:type="menu:ToolControl" xmi:id="_D5Mk8E0rEfGC17rDPFtHFw" elementId="left(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
         <tags>TrimStack</tags>
         <tags>Draggable</tags>
       </children>
@@ -516,18 +532,19 @@
         <tags>Draggable</tags>
       </children>
     </trimBars>
-    <trimBars xmi:id="_CaDhuE0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.trim.vertical2" contributorURI="platform:/plugin/org.eclipse.platform" toBeRendered="false" side="Right">
-      <children xsi:type="menu:ToolControl" xmi:id="_D65OEE0rEfGC17rDPFtHFw" elementId="org.eclipse.mylyn.tasks.ui.views.tasksMStack(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" toBeRendered="false" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
+    <trimBars xmi:id="_CaDhuE0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.trim.vertical2" contributorURI="platform:/plugin/org.eclipse.platform" side="Right">
+      <children xsi:type="menu:ToolControl" xmi:id="_D65OEE0rEfGC17rDPFtHFw" elementId="org.eclipse.mylyn.tasks.ui.views.tasksMStack(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
         <tags>TrimStack</tags>
         <tags>Draggable</tags>
       </children>
-      <children xsi:type="menu:ToolControl" xmi:id="_D7UE0E0rEfGC17rDPFtHFw" elementId="right(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" toBeRendered="false" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
+      <children xsi:type="menu:ToolControl" xmi:id="_D7UE0E0rEfGC17rDPFtHFw" elementId="right(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
         <tags>TrimStack</tags>
         <tags>Draggable</tags>
       </children>
-      <children xsi:type="menu:ToolControl" xmi:id="_D7o08E0rEfGC17rDPFtHFw" elementId="bottom(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" toBeRendered="false" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
+      <children xsi:type="menu:ToolControl" xmi:id="_D7o08E0rEfGC17rDPFtHFw" elementId="bottom(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
         <tags>TrimStack</tags>
         <tags>Draggable</tags>
+        <tags>MinimizedAndShowing</tags>
       </children>
       <children xsi:type="menu:ToolControl" xmi:id="_8WU-QE3LEfGtM_R2AXGvoA" elementId="org.eclipse.ui.editorss(IDEWindow).(org.eclipse.jdt.ui.JavaPerspective)" toBeRendered="false" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.TrimStack">
         <tags>TrimStack</tags>
@@ -2657,7 +2674,7 @@
   <addons xmi:id="_CaJBTU0QEfGC17rDPFtHFw" elementId="MinMax Addon" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.minmax.MinMaxAddon"/>
   <addons xmi:id="_CaJBTk0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.workbench.addon.0" contributorURI="platform:/plugin/org.eclipse.platform" contributionURI="bundleclass://org.eclipse.e4.ui.workbench/org.eclipse.e4.ui.internal.workbench.addons.HandlerProcessingAddon"/>
   <addons xmi:id="_CacjQE0QEfGC17rDPFtHFw" elementId="SplitterAddon" contributionURI="bundleclass://org.eclipse.e4.ui.workbench.addons.swt/org.eclipse.e4.ui.workbench.addons.splitteraddon.SplitterAddon"/>
-  <addons xmi:id="_-okZkU2-EfGtM_R2AXGvoA" elementId="org.eclipse.ui.ide.addon.0" contributionURI="bundleclass://org.eclipse.ui.ide/org.eclipse.ui.internal.ide.addons.SaveAllDirtyPartsAddon"/>
+  <addons xmi:id="_IYS0IKimEeS11vbz3f9ezw" elementId="org.eclipse.ui.ide.addon.0" contributorURI="platform:/plugin/org.eclipse.ui.ide" contributionURI="bundleclass://org.eclipse.ui.ide/org.eclipse.ui.internal.ide.addons.SaveAllDirtyPartsAddon"/>
   <addons xmi:id="_dz0JgGOlEeSMMaPQU2nlzw" elementId="org.eclipse.ui.ide.application.addon.0" contributorURI="platform:/plugin/org.eclipse.ui.ide.application" contributionURI="bundleclass://org.eclipse.ui.ide.application/org.eclipse.ui.internal.ide.application.addons.ModelCleanupAddon"/>
   <categories xmi:id="_CbWiME0QEfGC17rDPFtHFw" elementId="org.eclipse.team.ui.category.team" name="Version control (Team)" description="Actions that apply when working with a version control system"/>
   <categories xmi:id="_CbWiMU0QEfGC17rDPFtHFw" elementId="org.eclipse.ui.category.views" name="Views" description="Commands for opening views"/>

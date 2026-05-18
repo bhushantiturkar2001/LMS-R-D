@@ -97,3 +97,4 @@ public class LiveSessionController {
         return active ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 }
+ 
