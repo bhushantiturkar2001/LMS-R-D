@@ -1,5 +1,0 @@
-package com.knowlia.lms_live_service.exception;
-
-public class LmsException {
-
-}

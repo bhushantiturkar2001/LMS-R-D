@@ -1,4 +1,0 @@
-INDEX VERSION 1.134+D:\LMS\Livekit\.metadata\.plugins\org.eclipse.jdt.core
-1549559325.index
-1865797976.index
-2702130171.index

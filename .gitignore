@@ -3,6 +3,9 @@
 .vscode/*
 *.code-workspace
 
+# Eclipse / STS metadata — never commit IDE-specific files
+.metadata/
+
 # Kiro / IDE metadata
 .kiro/
 
