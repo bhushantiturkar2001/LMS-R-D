@@ -1,0 +1,222 @@
+package com.knowlia.lms_live_service.service;
+
+import com.knowlia.lms_live_service.dto.JoinResponse;
+import com.knowlia.lms_live_service.dto.StartSessionRequest;
+import com.knowlia.lms_live_service.exception.LiveKitServerException;
+import com.knowlia.lms_live_service.exception.SessionNotFoundException;
+import com.knowlia.lms_live_service.model.LiveSession;
+import com.knowlia.lms_live_service.model.LiveSession.SessionStatus;
+import com.knowlia.lms_live_service.repository.LiveSessionRepository;
+import io.livekit.server.RoomServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+/**
+ * Core business logic for managing live class sessions.
+ *
+ * <p>Responsibilities:
+ * <ul>
+ *   <li>Create and delete rooms in LiveKit server</li>
+ *   <li>Persist session state in the database</li>
+ *   <li>Generate access tokens for instructors and students</li>
+ *   <li>Rollback LiveKit room if DB save fails</li>
+ * </ul>
+ * </p>
+ *
+ * <p>This service does NOT handle HTTP — that is the controller's job.
+ * All LiveKit failures are wrapped in {@link LiveKitServerException}
+ * so the controller and global handler can respond with correct HTTP status.</p>
+ */
+@Service
+public class LiveSessionService {
+
+    private static final Logger log = LoggerFactory.getLogger(LiveSessionService.class);
+
+    @Autowired
+    private LiveSessionRepository sessionRepository;
+
+    @Autowired
+    private LiveKitTokenService tokenService;
+
+    @Autowired
+    private RoomServiceClient roomServiceClient;
+
+    @Value("${livekit.server.url}")
+    private String liveKitServerUrl;
+
+    /**
+     * Starts a live class session for an instructor.
+     *
+     * <p>Flow:
+     * <ol>
+     *   <li>Generate a unique room name (courseId + short UUID)</li>
+     *   <li>Create the room in LiveKit server</li>
+     *   <li>Save session record in DB with ACTIVE status</li>
+     *   <li>Generate and return instructor token</li>
+     * </ol>
+     * </p>
+     *
+     * <p>Rollback: If DB save fails after LiveKit room is created,
+     * the room is deleted from LiveKit to avoid orphaned rooms.</p>
+     *
+     * @param req contains courseId, instructorId, instructorName
+     * @return JoinResponse with instructor token and LiveKit server URL
+     * @throws LiveKitServerException if LiveKit room creation fails
+     */
+    public JoinResponse startSession(StartSessionRequest req) {
+
+        String roomName = req.getCourseId() + "-" + UUID.randomUUID().toString().substring(0, 8);
+        log.info("Starting session | instructorId={} | courseId={} | roomName={}",
+                req.getInstructorId(), req.getCourseId(), roomName);
+
+        // Step 1: Create room in LiveKit
+        try {
+            roomServiceClient.createRoom(
+                roomName,
+                300,  // emptyTimeout in seconds — auto-delete if empty for 5 min
+                500   // maxParticipants
+            ).execute();
+            log.info("LiveKit room created | roomName={}", roomName);
+        } catch (Exception e) {
+            log.error("Failed to create LiveKit room | roomName={} | error={}", roomName, e.getMessage());
+            throw new LiveKitServerException("create room", e);
+        }
+
+        // Step 2: Save session in DB — rollback LiveKit room if this fails
+        LiveSession session = new LiveSession();
+        session.setRoomName(roomName);
+        session.setCourseId(req.getCourseId());
+        session.setInstructorId(req.getInstructorId());
+        session.setStatus(SessionStatus.ACTIVE);
+        session.setStartTime(LocalDateTime.now());
+
+        try {
+            sessionRepository.save(session);
+            log.info("Session saved to DB | roomName={} | status=ACTIVE", roomName);
+        } catch (Exception e) {
+            log.error("DB save failed after LiveKit room created — rolling back | roomName={} | error={}",
+                    roomName, e.getMessage());
+            tryDeleteRoom(roomName);
+            throw new LiveKitServerException("save session to database after room creation", e);
+        }
+
+        // Step 3: Generate instructor token
+        String token = tokenService.generateInstructorToken(
+            roomName,
+            req.getInstructorId(),
+            req.getInstructorName()
+        );
+
+        log.info("Session started successfully | roomName={} | instructorId={}",
+                roomName, req.getInstructorId());
+        return new JoinResponse(token, liveKitServerUrl, roomName);
+    }
+
+    /**
+     * Issues a token for a student to join an active live class.
+     *
+     * <p>Verifies the session is ACTIVE in DB before issuing any token.
+     * If the instructor has not started the class yet, throws
+     * {@link SessionNotFoundException} which maps to HTTP 404.</p>
+     *
+     * @param roomName    the LiveKit room to join
+     * @param studentId   unique identity for the student participant
+     * @param studentName display name shown in the video room
+     * @return JoinResponse with student token and LiveKit server URL
+     * @throws SessionNotFoundException if no ACTIVE session exists for this room
+     */
+    public JoinResponse joinSession(String roomName, String studentId, String studentName) {
+
+        log.info("Student joining session | roomName={} | studentId={}", roomName, studentId);
+
+        // Verify session is ACTIVE — throws SessionNotFoundException if not found
+        sessionRepository.findByRoomNameAndStatus(roomName, SessionStatus.ACTIVE)
+            .orElseThrow(() -> {
+                log.warn("Join attempt for inactive/missing session | roomName={} | studentId={}",
+                        roomName, studentId);
+                return new SessionNotFoundException(roomName);
+            });
+
+        String token = tokenService.generateStudentToken(roomName, studentId, studentName);
+
+        log.info("Student token issued | roomName={} | studentId={}", roomName, studentId);
+        return new JoinResponse(token, liveKitServerUrl, roomName);
+    }
+
+    /**
+     * Ends a live class session.
+     *
+     * <p>Deletes the room from LiveKit, which automatically triggers
+     * the {@code room_finished} webhook for downstream processing
+     * (recording stop, attendance finalization).</p>
+     *
+     * <p>If LiveKit deletion fails, the session is still marked ENDED
+     * in DB and the error is logged — the class is considered ended
+     * from the platform's perspective regardless.</p>
+     *
+     * @param roomName the LiveKit room to delete
+     * @throws SessionNotFoundException if no session exists for this room
+     */
+    public void endSession(String roomName) {
+
+        log.info("Ending session | roomName={}", roomName);
+
+        // Step 1: Delete room from LiveKit (triggers room_finished webhook)
+        try {
+            roomServiceClient.deleteRoom(roomName).execute();
+            log.info("LiveKit room deleted | roomName={}", roomName);
+        } catch (Exception e) {
+            // Log but do not throw — we still mark session ENDED in DB below
+            log.error("Failed to delete LiveKit room — marking session ENDED anyway | roomName={} | error={}",
+                    roomName, e.getMessage());
+        }
+
+        // Step 2: Mark session ENDED in DB
+        LiveSession session = sessionRepository.findByRoomName(roomName)
+            .orElseThrow(() -> {
+                log.warn("End session called for unknown room | roomName={}", roomName);
+                return new SessionNotFoundException(roomName);
+            });
+
+        session.setStatus(SessionStatus.ENDED);
+        session.setEndTime(LocalDateTime.now());
+        sessionRepository.save(session);
+
+        log.info("Session ended | roomName={}", roomName);
+    }
+
+    /**
+     * Checks whether a room currently has an ACTIVE session.
+     * Used by the controller to show "Class is Live" status on the frontend.
+     *
+     * @param roomName the room to check
+     * @return true if an ACTIVE session exists, false otherwise
+     */
+    public boolean isRoomActive(String roomName) {
+        return sessionRepository.existsByRoomNameAndStatus(roomName, SessionStatus.ACTIVE);
+    }
+
+    /**
+     * Attempts to delete a LiveKit room as a rollback operation.
+     *
+     * <p>Called when DB save fails after a room was already created in LiveKit.
+     * Failure here is logged but not thrown — the original exception takes priority.</p>
+     *
+     * @param roomName the room to delete from LiveKit
+     */
+    private void tryDeleteRoom(String roomName) {
+        try {
+            roomServiceClient.deleteRoom(roomName).execute();
+            log.info("Rollback successful — LiveKit room deleted | roomName={}", roomName);
+        } catch (Exception ex) {
+            log.error("Rollback failed — could not delete LiveKit room | roomName={} | error={}",
+                    roomName, ex.getMessage());
+        }
+    }
+}

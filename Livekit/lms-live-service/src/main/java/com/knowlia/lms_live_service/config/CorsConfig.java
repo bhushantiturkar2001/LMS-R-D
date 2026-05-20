@@ -5,12 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * CORS configuration — allows React frontend (localhost:5173) to call
- * the Spring Boot backend (localhost:8084) during local development.
- *
- * In production, replace "*" origins with your actual frontend domain.
- */
+// In production, replace allowedOrigins with your actual frontend domain
 @Configuration
 public class CorsConfig {
 
@@ -20,7 +15,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:5173")  // Vite dev server
+                        .allowedOrigins("http://localhost:5173")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*");
             }

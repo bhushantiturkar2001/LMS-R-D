@@ -4,97 +4,79 @@ import com.knowlia.lms_live_service.dto.JoinRequest;
 import com.knowlia.lms_live_service.dto.JoinResponse;
 import com.knowlia.lms_live_service.dto.StartSessionRequest;
 import com.knowlia.lms_live_service.service.LiveSessionService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * REST controller for managing live class sessions.
- *
- * <p>Handles three operations: start a session (instructor),
- * join a session (student), and end a session (instructor).
- * Token generation and LiveKit communication is delegated to
- * {@link LiveSessionService} — controller only handles HTTP layer.</p>
+ * REST controller for live session management.
+ * Handles starting, joining, ending, and checking status of live classes.
  */
 @RestController
-@RequestMapping("/api/live")
+@RequestMapping("/api/v1/live")
 public class LiveSessionController {
+
+    private static final Logger log = LoggerFactory.getLogger(LiveSessionController.class);
 
     @Autowired
     private LiveSessionService liveSessionService;
 
     /**
-     * Instructor starts a live class.
-     * Creates a room in LiveKit and saves session in DB.
+     * Start a new live session (instructor only).
+     * Creates a LiveKit room and saves session to database.
      *
-     * @param req contains courseId, instructorId, instructorName
-     * @return JoinResponse with instructor token and LiveKit server URL
+     * @param request validated start session request
+     * @return room name and instructor token
      */
     @PostMapping("/start")
-    public ResponseEntity<JoinResponse> startSession(@RequestBody StartSessionRequest req) {
-        try {
-            JoinResponse response = liveSessionService.startSession(req);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            // Return 500 with error message — LiveKit server may be unreachable
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<JoinResponse> startSession(@Valid @RequestBody StartSessionRequest request) {
+        log.info("Starting session for course: {}, instructor: {}", request.getCourseId(), request.getInstructorId());
+        JoinResponse response = liveSessionService.startSession(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
-     * Student joins an active live class.
-     * Validates room is ACTIVE before issuing token.
+     * Join an existing live session (student).
+     * Validates room exists and generates student token.
      *
-     * <p>Returns 404 if instructor has not started the class yet.
-     * Enrollment check is intentionally skipped here for now —
-     * add it when Student Service is available.</p>
-     *
-     * @param req contains roomName, studentId, studentName, courseId
-     * @return JoinResponse with student token and LiveKit server URL
+     * @param request validated join request
+     * @return room name and student token
      */
     @PostMapping("/join")
-    public ResponseEntity<JoinResponse> joinSession(@RequestBody JoinRequest req) {
-        try {
-            JoinResponse response = liveSessionService.joinSession(
-                req.getRoomName(),
-                req.getStudentId(),
-                req.getStudentName()
-            );
-            return ResponseEntity.ok(response);
-        } catch (RuntimeException e) {
-            // Session not active or not found
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<JoinResponse> joinSession(@Valid @RequestBody JoinRequest request) {
+        log.info("Student {} joining room: {}", request.getStudentId(), request.getRoomName());
+        JoinResponse response = liveSessionService.joinSession(request);
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * Instructor ends the live class.
-     * Deletes room from LiveKit — triggers room_finished webhook automatically.
+     * End a live session (instructor only).
+     * Closes the LiveKit room and marks session as ended.
      *
-     * @param roomName the LiveKit room identifier to end
-     * @return 200 OK on success, 500 if LiveKit call fails
+     * @param roomName the room to end
+     * @return success message
      */
     @PostMapping("/end")
-    public ResponseEntity<Void> endSession(@RequestParam String roomName) {
-        try {
-            liveSessionService.endSession(roomName);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    public ResponseEntity<String> endSession(@RequestParam String roomName) {
+        log.info("Ending session for room: {}", roomName);
+        liveSessionService.endSession(roomName);
+        return ResponseEntity.ok("Session ended successfully");
     }
 
     /**
-     * Health check — verify if a room is currently active.
-     * Used by frontend to show "Class is Live" indicator.
+     * Check if a room is currently active.
      *
      * @param roomName the room to check
-     * @return 200 if active, 404 if not active
+     * @return true if room is active, false otherwise
      */
     @GetMapping("/status")
-    public ResponseEntity<Void> checkRoomStatus(@RequestParam String roomName) {
-        boolean active = liveSessionService.isRoomActive(roomName);
-        return active ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    public ResponseEntity<Boolean> isRoomActive(@RequestParam String roomName) {
+        log.info("Checking status for room: {}", roomName);
+        boolean isActive = liveSessionService.isRoomActive(roomName);
+        return ResponseEntity.ok(isActive);
     }
 }
- 

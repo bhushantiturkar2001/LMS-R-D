@@ -1,0 +1,177 @@
+package com.knowlia.lms_live_service.exception;
+
+import com.knowlia.lms_live_service.dto.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Global exception handler for all REST controllers.
+ * Catches custom and standard exceptions, converts them to ErrorResponse DTOs.
+ * Never exposes stack traces to clients — only error codes and user-friendly messages.
+ */
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    /**
+     * Handle SessionNotFoundException (404).
+     * Thrown when a live session is not found by room name.
+     */
+    @ExceptionHandler(SessionNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleSessionNotFoundException(
+            SessionNotFoundException ex, WebRequest request) {
+        log.warn("SessionNotFoundException: {}", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Handle SessionAlreadyActiveException (409).
+     * Thrown when instructor tries to start a class but already has one active.
+     */
+    @ExceptionHandler(SessionAlreadyActiveException.class)
+    public ResponseEntity<ErrorResponse> handleSessionAlreadyActiveException(
+            SessionAlreadyActiveException ex, WebRequest request) {
+        log.warn("SessionAlreadyActiveException: {}", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Handle RoomCapacityExceededException (409).
+     * Thrown when room is full and no more students can join.
+     */
+    @ExceptionHandler(RoomCapacityExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRoomCapacityExceededException(
+            RoomCapacityExceededException ex, WebRequest request) {
+        log.warn("RoomCapacityExceededException: {}", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Handle LiveKitServerException (503).
+     * Thrown when LiveKit server is unreachable or returns an error.
+     */
+    @ExceptionHandler(LiveKitServerException.class)
+    public ResponseEntity<ErrorResponse> handleLiveKitServerException(
+            LiveKitServerException ex, WebRequest request) {
+        log.error("LiveKitServerException: {}", ex.getMessage(), ex.getCause());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    /**
+     * Handle RecordingFailedException (500).
+     * Thrown when recording fails but class continues.
+     */
+    @ExceptionHandler(RecordingFailedException.class)
+    public ResponseEntity<ErrorResponse> handleRecordingFailedException(
+            RecordingFailedException ex, WebRequest request) {
+        log.error("RecordingFailedException: {}", ex.getMessage(), ex.getCause());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * Handle UnauthorizedException (403).
+     * Thrown when user lacks permission to perform an action.
+     */
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(
+            UnauthorizedException ex, WebRequest request) {
+        log.warn("UnauthorizedException: {}", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    /**
+     * Handle InvalidRequestException (400).
+     * Thrown when request body contains invalid data.
+     */
+    @ExceptionHandler(InvalidRequestException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRequestException(
+            InvalidRequestException ex, WebRequest request) {
+        log.warn("InvalidRequestException: {}", ex.getMessage());
+        ErrorResponse response = new ErrorResponse(
+                ex.getErrorCode(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle MethodArgumentNotValidException (400).
+     * Thrown by Spring when @Valid validation fails on request body.
+     * Returns field-level error messages.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex, WebRequest request) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                fieldErrors.put(error.getField(), error.getDefaultMessage())
+        );
+        log.warn("Validation failed: {}", fieldErrors);
+        
+        String message = "Validation failed: " + fieldErrors;
+        ErrorResponse response = new ErrorResponse(
+                "INVALID_REQUEST",
+                message,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle all other exceptions (500).
+     * Fallback for unexpected errors — never expose stack trace.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(
+            Exception ex, WebRequest request) {
+        log.error("Unexpected exception: {}", ex.getMessage(), ex);
+        ErrorResponse response = new ErrorResponse(
+                "INTERNAL_SERVER_ERROR",
+                "An unexpected error occurred. Please try again later.",
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}

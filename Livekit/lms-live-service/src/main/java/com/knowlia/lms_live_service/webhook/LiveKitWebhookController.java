@@ -5,6 +5,8 @@ import com.knowlia.lms_live_service.model.LiveSession.SessionStatus;
 import com.knowlia.lms_live_service.repository.LiveSessionRepository;
 import io.livekit.server.WebhookReceiver;
 import livekit.LivekitWebhook.WebhookEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,22 +14,12 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Receives and processes webhook events from LiveKit server.
- *
- * <p>LiveKit calls this endpoint automatically when room events occur
- * (room started, room finished, participant joined/left, recording done).
- * Each event is verified using HMAC signature before processing.</p>
- *
- * <p>Heavy processing (recording, notifications) should be sent to Kafka
- * from here — do not do heavy work synchronously in this controller,
- * as LiveKit expects a fast 200 OK response.</p>
- */
 @RestController
 @RequestMapping("/api/live/webhook")
 public class LiveKitWebhookController {
 
-    // Injected from application.yml
+    private static final Logger log = LoggerFactory.getLogger(LiveKitWebhookController.class);
+
     @Value("${livekit.api.key}")
     private String apiKey;
 
@@ -40,146 +32,96 @@ public class LiveKitWebhookController {
         this.sessionRepository = sessionRepository;
     }
 
-    /**
-     * Main webhook handler — receives all LiveKit room events.
-     *
-     * <p>Verifies the request signature first. If invalid, returns 401.
-     * Processes event based on type — updates DB for critical events,
-     * publishes to Kafka for async processing (when Kafka is added).</p>
-     *
-     * @param body       raw JSON body from LiveKit
-     * @param authHeader Authorization header used to verify webhook signature
-     * @return 200 OK always after processing — LiveKit retries on non-200
-     */
+    // LiveKit retries on non-200 — always return 200 quickly
     @PostMapping
     public ResponseEntity<Void> handleWebhook(
             @RequestBody String body,
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
 
         WebhookEvent event;
-
         try {
-            // Verify signature — prevents fake webhook calls from outside
             WebhookReceiver receiver = new WebhookReceiver(apiKey, webhookSecret);
             event = receiver.receive(body, authHeader);
+            log.info("Webhook received | event={} | roomName={}",
+                    event.getEvent(), event.hasRoom() ? event.getRoom().getName() : "N/A");
         } catch (Exception e) {
-            // Invalid signature — reject the request
+            log.warn("Webhook signature verification failed | error={}", e.getMessage());
             return ResponseEntity.status(401).build();
         }
 
-        // Route to correct handler based on event type
         switch (event.getEvent()) {
-
-            case "room_started":
-                // Room created in LiveKit — class officially started
-                handleRoomStarted(event);
-                break;
-
-            case "room_finished":
-                // Room deleted — class ended, all participants disconnected
-                // TODO: publish to Kafka → Recording Service + Notification Service
-                handleRoomFinished(event);
-                break;
-
-            case "participant_joined":
-                // A participant connected to the room
-                // TODO: publish to Kafka → Attendance Service
-                handleParticipantJoined(event);
-                break;
-
-            case "participant_left":
-                // A participant disconnected from the room
-                // TODO: publish to Kafka → Attendance Service (calculate duration)
-                handleParticipantLeft(event);
-                break;
-
-            case "egress_ended":
-                // Recording file is ready — S3 URL is now available
-                // TODO: publish to Kafka → save URL + notify students
-                handleEgressEnded(event);
-                break;
-
+            case "room_started":    handleRoomStarted(event);    break;
+            case "room_finished":   handleRoomFinished(event);   break;
+            case "participant_joined": handleParticipantJoined(event); break;
+            case "participant_left":   handleParticipantLeft(event);   break;
+            case "egress_ended":    handleEgressEnded(event);    break;
             default:
-                // Unhandled event — log and ignore
-                System.out.println("Unhandled webhook event: " + event.getEvent());
+                log.info("Unhandled webhook event | event={}", event.getEvent());
         }
 
-        // Always return 200 quickly — LiveKit retries if it gets non-200
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Handles room_started event.
-     * Room already exists in DB (created in startSession) — just log for now.
-     */
     private void handleRoomStarted(WebhookEvent event) {
-        String roomName = event.getRoom().getName();
-        System.out.println("Room started: " + roomName);
-        // DB update already done in LiveSessionService.startSession()
+        log.info("Room started | roomName={}", event.getRoom().getName());
     }
 
-    /**
-     * Handles room_finished event.
-     * Marks session ENDED in DB if not already done.
-     * In full system: publish Kafka event for recording + notification processing.
-     */
     private void handleRoomFinished(WebhookEvent event) {
         String roomName = event.getRoom().getName();
+        Optional<LiveSession> sessionOpt = sessionRepository.findByRoomName(roomName);
 
-        Optional<LiveSession> session = sessionRepository.findByRoomName(roomName);
-        session.ifPresent(s -> {
-            // Guard: only update if not already ENDED (endSession() may have done it)
-            if (s.getStatus() != SessionStatus.ENDED) {
-                s.setStatus(SessionStatus.ENDED);
-                s.setEndTime(LocalDateTime.now());
-                sessionRepository.save(s);
-            }
-        });
+        if (sessionOpt.isEmpty()) {
+            log.warn("room_finished for unknown room | roomName={}", roomName);
+            return;
+        }
 
-        System.out.println("Room finished: " + roomName);
+        LiveSession session = sessionOpt.get();
+
+        // Idempotency — skip if already ENDED (endSession() may have done it)
+        if (session.getStatus() == SessionStatus.ENDED) {
+            log.warn("Duplicate room_finished webhook | roomName={}", roomName);
+            return;
+        }
+
+        session.setStatus(SessionStatus.ENDED);
+        session.setEndTime(LocalDateTime.now());
+        sessionRepository.save(session);
+        log.info("Session marked ENDED via webhook | roomName={}", roomName);
+        // TODO Phase 2: WebClient → lms-recording-service to stop recording
     }
 
-    /**
-     * Handles participant_joined event.
-     * In full system: publish to Kafka → Attendance Service marks join time.
-     */
     private void handleParticipantJoined(WebhookEvent event) {
-        String roomName = event.getRoom().getName();
-        String identity = event.getParticipant().getIdentity();
-        System.out.println("Participant joined: " + identity + " in room: " + roomName);
-        // TODO: kafkaTemplate.send("attendance-events", new AttendanceEvent(roomName, identity, "JOINED"))
+        log.info("Participant joined | roomName={} | identity={}",
+                event.getRoom().getName(), event.getParticipant().getIdentity());
+        // TODO Phase 4: Save attendance record with joinTime
     }
 
-    /**
-     * Handles participant_left event.
-     * In full system: publish to Kafka → Attendance Service calculates duration.
-     */
     private void handleParticipantLeft(WebhookEvent event) {
-        String roomName = event.getRoom().getName();
-        String identity = event.getParticipant().getIdentity();
-        System.out.println("Participant left: " + identity + " in room: " + roomName);
-        // TODO: kafkaTemplate.send("attendance-events", new AttendanceEvent(roomName, identity, "LEFT"))
+        log.info("Participant left | roomName={} | identity={}",
+                event.getRoom().getName(), event.getParticipant().getIdentity());
+        // TODO Phase 4: Update attendance with leaveTime + calculate duration
     }
 
-    /**
-     * Handles egress_ended event — recording file is ready on S3.
-     * Saves recording URL to session record.
-     * In full system: publish to Kafka → notify students recording is available.
-     */
     private void handleEgressEnded(WebhookEvent event) {
         String roomName = event.getEgressInfo().getRoomName();
 
-        // Get S3 URL from egress result
-        if (event.getEgressInfo().getFileResultsCount() > 0) {
-            String recordingUrl = event.getEgressInfo().getFileResults(0).getLocation();
-
-            sessionRepository.findByRoomName(roomName).ifPresent(s -> {
-                s.setRecordingUrl(recordingUrl);
-                sessionRepository.save(s);
-            });
-
-            System.out.println("Recording ready for room: " + roomName + " → " + recordingUrl);
-            // TODO: kafkaTemplate.send("recording-events", new RecordingDoneEvent(roomName, recordingUrl))
+        if (event.getEgressInfo().getFileResultsCount() == 0) {
+            log.warn("egress_ended has no file results | roomName={}", roomName);
+            return;
         }
+
+        String recordingUrl = event.getEgressInfo().getFileResults(0).getLocation();
+
+        sessionRepository.findByRoomName(roomName).ifPresent(session -> {
+            // Idempotency — skip if already saved
+            if (session.getRecordingUrl() != null) {
+                log.warn("Duplicate egress_ended webhook | roomName={}", roomName);
+                return;
+            }
+            session.setRecordingUrl(recordingUrl);
+            sessionRepository.save(session);
+            log.info("Recording URL saved | roomName={} | url={}", roomName, recordingUrl);
+        });
+        // TODO Phase 2: WebClient → lms-recording-service with recordingUrl
     }
 }

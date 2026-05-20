@@ -3,47 +3,50 @@ package com.knowlia.lms_live_service.dto;
 import java.time.LocalDateTime;
 
 /**
- * Standard error response returned to the client for all exceptions.
- *
- * <p>Every error from this service — validation failure, not found,
- * server error — returns this exact structure. This ensures the frontend
- * always knows what to expect and can handle errors consistently.</p>
- *
- * <p>Example response body:
- * <pre>
- * {
- *   "errorCode": "SESSION_NOT_FOUND",
- *   "message": "Live session not found for room: physics-101-abc123",
- *   "timestamp": "2026-05-19T13:45:00"
- * }
- * </pre>
- * </p>
- *
- * <p>IMPORTANT: Never include stack traces, internal class names,
- * or DB error details in this response — those go to server logs only.</p>
+ * Standard error response DTO for all API errors.
+ * Returned by GlobalExceptionHandler to clients.
+ * Never includes stack traces — only error code, message, and timestamp.
  */
 public class ErrorResponse {
 
-    /** Machine-readable code — frontend uses this for conditional logic. */
-    private final String errorCode;
-
-    /** Human-readable message — shown to user or logged by frontend. */
-    private final String message;
-
-    /** Server time when the error occurred — useful for debugging. */
-    private final LocalDateTime timestamp;
+    private String errorCode;
+    private String message;
+    private LocalDateTime timestamp;
 
     /**
-     * @param errorCode machine-readable error code (e.g. "SESSION_NOT_FOUND")
-     * @param message   human-readable description of what went wrong
+     * Constructor for error response.
+     *
+     * @param errorCode unique error identifier (e.g., SESSION_NOT_FOUND)
+     * @param message user-friendly error message
+     * @param timestamp when the error occurred
      */
-    public ErrorResponse(String errorCode, String message) {
+    public ErrorResponse(String errorCode, String message, LocalDateTime timestamp) {
         this.errorCode = errorCode;
         this.message = message;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = timestamp;
     }
 
-    public String getErrorCode() { return errorCode; }
-    public String getMessage() { return message; }
-    public LocalDateTime getTimestamp() { return timestamp; }
+    public String getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(String errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 }

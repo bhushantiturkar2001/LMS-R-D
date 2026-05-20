@@ -1,0 +1,51 @@
+# VS Code
+.vscode/
+.vscode/*
+*.code-workspace
+
+# Kiro / IDE metadata
+.kiro/
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+HELP.md
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Spring Boot
+*.log
+spring.log
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Eclipse / STS
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Environment files — never commit secrets
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
