@@ -12,7 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/live/webhook")
@@ -26,6 +30,10 @@ public class LiveKitWebhookController {
     @Value("${livekit.webhook.secret}")
     private String webhookSecret;
 
+    // 1.5.3 Webhook Security — IP Whitelist
+    @Value("${livekit.webhook.allowed-ips:127.0.0.1,localhost}")
+    private String allowedIpsString;
+
     private final LiveSessionRepository sessionRepository;
 
     public LiveKitWebhookController(LiveSessionRepository sessionRepository) {
@@ -36,16 +44,26 @@ public class LiveKitWebhookController {
     @PostMapping
     public ResponseEntity<Void> handleWebhook(
             @RequestBody String body,
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+            @RequestHeader(value = "Authorization", required = false) String authHeader,
+            @RequestHeader(value = "X-Forwarded-For", required = false) String forwardedFor,
+            @RequestHeader(value = "X-Real-IP", required = false) String realIp,
+            @RequestHeader(value = "Host", required = false) String host) {
+
+        // 1.5.3 Webhook Security — IP Whitelist check
+        String clientIp = extractClientIp(forwardedFor, realIp, host);
+        if (!isIpAllowed(clientIp)) {
+            log.warn("Webhook rejected — unauthorized IP | ip={}", clientIp);
+            return ResponseEntity.status(403).build();
+        }
 
         WebhookEvent event;
         try {
             WebhookReceiver receiver = new WebhookReceiver(apiKey, webhookSecret);
             event = receiver.receive(body, authHeader);
-            log.info("Webhook received | event={} | roomName={}",
-                    event.getEvent(), event.hasRoom() ? event.getRoom().getName() : "N/A");
+            log.info("Webhook received | event={} | roomName={} | ip={}",
+                    event.getEvent(), event.hasRoom() ? event.getRoom().getName() : "N/A", clientIp);
         } catch (Exception e) {
-            log.warn("Webhook signature verification failed | error={}", e.getMessage());
+            log.warn("Webhook signature verification failed | error={} | ip={}", e.getMessage(), clientIp);
             return ResponseEntity.status(401).build();
         }
 
@@ -60,6 +78,48 @@ public class LiveKitWebhookController {
         }
 
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Extract client IP from various headers (handles proxies/load balancers).
+     */
+    private String extractClientIp(String forwardedFor, String realIp, String host) {
+        if (forwardedFor != null && !forwardedFor.isEmpty()) {
+            // X-Forwarded-For may contain multiple IPs — take the first one
+            return forwardedFor.split(",")[0].trim();
+        }
+        if (realIp != null && !realIp.isEmpty()) {
+            return realIp;
+        }
+        if (host != null && !host.isEmpty()) {
+            // Host header may contain port — extract just the IP/hostname
+            return host.split(":")[0];
+        }
+        return "unknown";
+    }
+
+    /**
+     * Check if the client IP is in the whitelist.
+     */
+    private boolean isIpAllowed(String clientIp) {
+        if (clientIp == null || clientIp.equals("unknown")) {
+            log.warn("Could not determine client IP for webhook");
+            return false;
+        }
+
+        Set<String> allowedIps = Arrays.stream(allowedIpsString.split(","))
+                .map(String::trim)
+                .map(String::toLowerCase)
+                .collect(Collectors.toSet());
+
+        String normalizedIp = clientIp.toLowerCase();
+
+        // Also check if it's localhost variations
+        if (normalizedIp.equals("127.0.0.1") || normalizedIp.equals("localhost")) {
+            return allowedIps.contains("127.0.0.1") || allowedIps.contains("localhost");
+        }
+
+        return allowedIps.contains(normalizedIp);
     }
 
     private void handleRoomStarted(WebhookEvent event) {
@@ -77,7 +137,7 @@ public class LiveKitWebhookController {
 
         LiveSession session = sessionOpt.get();
 
-        // Idempotency — skip if already ENDED (endSession() may have done it)
+        // 1.5 Idempotency — skip if already ENDED (endSession() may have done it)
         if (session.getStatus() == SessionStatus.ENDED) {
             log.warn("Duplicate room_finished webhook | roomName={}", roomName);
             return;
@@ -113,7 +173,7 @@ public class LiveKitWebhookController {
         String recordingUrl = event.getEgressInfo().getFileResults(0).getLocation();
 
         sessionRepository.findByRoomName(roomName).ifPresent(session -> {
-            // Idempotency — skip if already saved
+            // 1.5 Idempotency — skip if already saved
             if (session.getRecordingUrl() != null) {
                 log.warn("Duplicate egress_ended webhook | roomName={}", roomName);
                 return;

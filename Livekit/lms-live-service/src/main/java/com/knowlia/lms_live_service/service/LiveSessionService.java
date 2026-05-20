@@ -4,6 +4,7 @@ import com.knowlia.lms_live_service.dto.JoinRequest;
 import com.knowlia.lms_live_service.dto.JoinResponse;
 import com.knowlia.lms_live_service.dto.StartSessionRequest;
 import com.knowlia.lms_live_service.exception.LiveKitServerException;
+import com.knowlia.lms_live_service.exception.SessionAlreadyActiveException;
 import com.knowlia.lms_live_service.exception.SessionNotFoundException;
 import com.knowlia.lms_live_service.model.LiveSession;
 import com.knowlia.lms_live_service.model.LiveSession.SessionStatus;
@@ -35,7 +36,22 @@ public class LiveSessionService {
     @Value("${livekit.server.url}")
     private String liveKitServerUrl;
 
+    /**
+     * Maximum session duration in hours (configurable).
+     */
+    @Value("${livekit.session.max-duration-hours:4}")
+    private int maxDurationHours;
+
     public JoinResponse startSession(StartSessionRequest req) {
+
+        // 1.5.1 Concurrent Session Prevention — check if instructor already has active session
+        sessionRepository.findByInstructorIdAndStatus(req.getInstructorId(), SessionStatus.ACTIVE)
+                .ifPresent(existingSession -> {
+                    log.warn("Concurrent session attempt | instructorId={} | existingRoom={}",
+                            req.getInstructorId(), existingSession.getRoomName());
+                    throw new SessionAlreadyActiveException(
+                            req.getInstructorId(), existingSession.getRoomName());
+                });
 
         String roomName = req.getCourseId() + "-" + UUID.randomUUID().toString().substring(0, 8);
         log.info("Starting session | instructorId={} | courseId={} | roomName={}",
@@ -54,6 +70,8 @@ public class LiveSessionService {
         session.setInstructorId(req.getInstructorId());
         session.setStatus(SessionStatus.ACTIVE);
         session.setStartTime(LocalDateTime.now());
+        // 1.5.4 Session Duration Limit — set scheduled end time
+        session.setScheduledEndTime(LocalDateTime.now().plusHours(maxDurationHours));
 
         try {
             sessionRepository.save(session);
@@ -65,7 +83,7 @@ public class LiveSessionService {
         }
 
         String token = tokenService.generateInstructorToken(roomName, req.getInstructorId(), req.getInstructorName());
-        log.info("Session started | roomName={}", roomName);
+        log.info("Session started | roomName={} | scheduledEndTime={}", roomName, session.getScheduledEndTime());
         return new JoinResponse(token, liveKitServerUrl, roomName);
     }
 
@@ -105,6 +123,26 @@ public class LiveSessionService {
 
     public boolean isRoomActive(String roomName) {
         return sessionRepository.existsByRoomNameAndStatus(roomName, SessionStatus.ACTIVE);
+    }
+
+    /**
+     * Auto-end sessions that have exceeded their scheduled duration.
+     * Called by scheduled task.
+     */
+    public void autoEndExpiredSessions() {
+        log.debug("Checking for expired sessions...");
+        var expiredSessions = sessionRepository.findByStatusAndScheduledEndTimeBefore(
+                SessionStatus.ACTIVE, LocalDateTime.now());
+
+        for (LiveSession session : expiredSessions) {
+            log.warn("Auto-ending expired session | roomName={} | scheduledEndTime={} | now={}",
+                    session.getRoomName(), session.getScheduledEndTime(), LocalDateTime.now());
+            endSession(session.getRoomName());
+        }
+
+        if (!expiredSessions.isEmpty()) {
+            log.info("Auto-ended {} expired sessions", expiredSessions.size());
+        }
     }
 
     private void tryDeleteRoom(String roomName) {

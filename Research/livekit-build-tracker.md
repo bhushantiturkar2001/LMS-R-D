@@ -123,18 +123,44 @@ Phase 8   -> Edge Cases and Reliability               (1 day)
 
 ### 1.5 Idempotency in Webhooks
 
-- [ ] room_finished - check if status already ENDED before updating
-- [ ] participant_joined - check if attendance record already exists
-- [ ] participant_left - check if already marked LEFT
-- [ ] egress_ended - check if recordingUrl already saved
-- [ ] Log warning when duplicate event detected
+- [x] room_finished - check if status already ENDED before updating
+- [ ] participant_joined - check if attendance record already exists (TODO Phase 4)
+- [ ] participant_left - check if already marked LEFT (TODO Phase 4)
+- [x] egress_ended - check if recordingUrl already saved
+- [x] Log warning when duplicate event detected
 
 ### 1.6 Transactional Safety
 
-- [ ] startSession() - if DB save fails after LiveKit room created -> delete room from LiveKit (rollback)
-- [ ] endSession() - if LiveKit delete fails -> still mark DB as ENDED + log error
-- [ ] Add tryDeleteRoom() private method for rollback
-- [ ] Add @Transactional where multiple DB operations happen
+- [x] startSession() - if DB save fails after LiveKit room created -> delete room from LiveKit (rollback)
+- [x] endSession() - if LiveKit delete fails -> still mark DB as ENDED + log error
+- [x] Add tryDeleteRoom() private method for rollback
+- [x] Add @Transactional where multiple DB operations happen
+
+---
+
+## PHASE 1.5 - Critical Security (COMPLETED May 20, 2026)
+> Moved from Phase 7 — too critical to leave for last
+
+### 1.5.1 Concurrent Session Prevention ✅ DONE
+- [x] Instructor cannot start 2 classes simultaneously
+- [x] Throws SessionAlreadyActiveException with helpful message
+- [x] Logs conflict attempts with roomName
+
+### 1.5.2 Database Indexes ✅ DONE
+- [x] @Index on roomName, instructorId+status, courseId
+- [x] Improves query performance for common lookups
+
+### 1.5.3 Webhook Security ✅ DONE
+- [x] IP whitelist configured in application.yml
+- [x] Rejects webhooks from unauthorized IPs (403)
+- [x] Supports X-Forwarded-For for proxy setups
+- [x] Logs all webhook attempts with caller IP
+
+### 1.5.4 Session Duration Limit ✅ DONE
+- [x] scheduledEndTime field added to LiveSession
+- [x] Auto-ends sessions after 4 hours (configurable)
+- [x] @Scheduled task runs every minute
+- [x] Logs auto-end events with reason
 
 ---
 
@@ -143,33 +169,33 @@ Phase 8   -> Edge Cases and Reliability               (1 day)
 
 ### 1.5.1 Concurrent Session Prevention
 
-- [ ] In startSession() - check if instructor already has ACTIVE session:
+- [x] In startSession() - check if instructor already has ACTIVE session:
   findByInstructorIdAndStatus(instructorId, ACTIVE) -> if exists -> throw SessionAlreadyActiveException
-- [ ] Error: "You already have an active class. Please end it before starting a new one."
-- [ ] Log every conflict attempt with teacherId + existing roomName
+- [x] Error: "You already have an active class. Please end it before starting a new one."
+- [x] Log every conflict attempt with teacherId + existing roomName
 
 ### 1.5.2 Database Indexes - lms-live-service
 
-- [ ] Index on live_sessions.room_name
-- [ ] Composite index on live_sessions.instructor_id + status
-- [ ] Index on live_sessions.course_id
-- [ ] Add via @Index annotation on LiveSession entity
+- [x] Index on live_sessions.room_name
+- [x] Composite index on live_sessions.instructor_id + status
+- [x] Index on live_sessions.course_id
+- [x] Add via @Index annotation on LiveSession entity
 
 ### 1.5.3 Webhook Security - IP Whitelist
 
-- [ ] LiveKit webhooks only accepted from LiveKit server IP
-- [ ] Add IP check in LiveKitWebhookController before processing
-- [ ] If IP not whitelisted -> return 403 + log warning with caller IP
-- [ ] For local dev: whitelist 127.0.0.1 and localhost
-- [ ] Configure allowed IPs in application.yml
+- [x] LiveKit webhooks only accepted from LiveKit server IP
+- [x] Add IP check in LiveKitWebhookController before processing
+- [x] If IP not whitelisted -> return 403 + log warning with caller IP
+- [x] For local dev: whitelist 127.0.0.1 and localhost
+- [x] Configure allowed IPs in application.yml
 
 ### 1.5.4 Session Duration Limit
 
-- [ ] Add scheduledEndTime field to LiveSession entity
-- [ ] When class starts -> set scheduledEndTime = startTime + maxDuration
-- [ ] @Scheduled task - every minute check sessions past end time
-- [ ] If now() > scheduledEndTime -> auto-call endSession(roomName)
-- [ ] Log every auto-end with roomName + reason
+- [x] Add scheduledEndTime field to LiveSession entity
+- [x] When class starts -> set scheduledEndTime = startTime + maxDuration
+- [x] @Scheduled task - every minute check sessions past end time
+- [x] If now() > scheduledEndTime -> auto-call endSession(roomName)
+- [x] Log every auto-end with roomName + reason
 
 
 ---

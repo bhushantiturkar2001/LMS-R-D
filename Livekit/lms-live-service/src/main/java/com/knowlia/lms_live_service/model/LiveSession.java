@@ -6,7 +6,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
-@Table(name = "live_sessions")
+@Table(name = "live_sessions", indexes = {
+        @Index(name = "idx_room_name", columnList = "roomName"),
+        @Index(name = "idx_instructor_status", columnList = "instructorId, status"),
+        @Index(name = "idx_course_id", columnList = "courseId")
+})
 public class LiveSession {
 
     @Id
@@ -22,6 +26,7 @@ public class LiveSession {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private LocalDateTime scheduledEndTime;  // Auto-end timestamp
     private String recordingUrl;   // S3 URL after recording done
 
     public enum SessionStatus {
